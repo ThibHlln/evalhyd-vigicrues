@@ -56,6 +56,22 @@ def _read_xml_sandre(xml_file: str) -> pd.DataFrame:
 
 
 def _convert_df_to_arr(df: pd.DataFrame) -> np.ndarray:
+    # convert emission dates to validity dates
+    df = df.to_frame(name='valeur')
+
+    validity_dates = (
+        df.index.get_level_values('date émission')
+        + df.index.get_level_values('échéances')
+    )
+
+    df = df.droplevel('date émission', axis=0)
+
+    df.loc[:, 'date validité'] = validity_dates
+
+    df = df.pivot(columns='date validité', values='valeur')
+
+    df = df.stack(level='date validité', dropna=False)
+
     # determine shape of array (sites, leadtimes, members, time)
     shape = tuple(map(len, df.index.levels))
 
@@ -68,7 +84,6 @@ def _convert_df_to_arr(df: pd.DataFrame) -> np.ndarray:
 
 def read_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
     prd = None
-
     for xml_file in xml_files:
         prd = pd.concat([prd, _read_xml_sandre(xml_file)])
 
