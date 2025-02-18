@@ -4,7 +4,7 @@ from typing import List
 from libhydro.conv.xml import xml_parser
 
 
-def _read_xml_sandre(xml_file: str) -> pd.DataFrame:
+def _read_frc_from_xml_sandre(xml_file: str) -> pd.DataFrame:
     # read in XML Sandre file with `libhydro`
     x = xml_parser.parse_xml_file(xml_file)
 
@@ -55,21 +55,26 @@ def _read_xml_sandre(xml_file: str) -> pd.DataFrame:
     return prd
 
 
-def _convert_df_to_arr(df: pd.DataFrame) -> np.ndarray:
+def _convert_frc_df_to_arr(df: pd.DataFrame) -> np.ndarray:
     # convert emission dates to validity dates
     df = df.to_frame(name='valeur')
 
+    # compute validity dates from issue dates and lead times
     validity_dates = (
         df.index.get_level_values('date émission')
         + df.index.get_level_values('échéances')
     )
 
+    # drop issue dates
     df = df.droplevel('date émission', axis=0)
 
+    # create new column with validity dates
     df.loc[:, 'date validité'] = validity_dates
 
+    # use validity dates as column index
     df = df.pivot(columns='date validité', values='valeur')
 
+    # append column index as additional level in row index
     df = df.stack(level='date validité', dropna=False)
 
     # determine shape of array (sites, leadtimes, members, time)
@@ -82,9 +87,20 @@ def _convert_df_to_arr(df: pd.DataFrame) -> np.ndarray:
     return arr
 
 
-def read_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
+def read_frc_from_xml_sandre(
+        xml_files: List[str], return_format='pandas'
+) -> pd.DataFrame | np.ndarray:
+    # check requested return format
+    if return_format not in ('numpy', 'pandas'):
+        raise ValueError("return_format must be 'numpy' or 'pandas'")
+
+    # loop through XML files
     prd = None
     for xml_file in xml_files:
-        prd = pd.concat([prd, _read_xml_sandre(xml_file)])
+        prd = pd.concat([prd, _read_frc_from_xml_sandre(xml_file)])
 
-    return prd
+    # return in requested format
+    if return_format == 'numpy':
+        return _convert_frc_df_to_arr(prd)
+    else:  # 'pandas'
+        return prd
