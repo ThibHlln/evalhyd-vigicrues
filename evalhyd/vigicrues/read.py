@@ -20,56 +20,42 @@ def _read_frc_from_xml_sandre(xml_file: str) -> pd.DataFrame:
         # collect forecast issue date
         issue_date = sim.dtderobs
 
-        # convert validity dates into leadtimes
-        df.index = df.index.set_levels(
-            df.index.levels[0] - issue_date,
-            level=0
-        )
-
-        # rename column and column index
-        df = df.rename(columns={'res': issue_date})
-        df.columns.name = "date émission"
+        # rename result column
+        df = df.rename(columns={'res': 'valeur'})
 
         # rename multi-index levels
         df.index = df.index.rename(
             {
                 'lb': 'membres',
-                'dte': 'échéances'
+                'dte': 'date validité'
             }
         )
 
-        # turn column index into level in row multi-index
-        s = df.stack('date émission')
+        # create new column with validity dates
+        df.loc[:, 'échéances'] = (
+            df.index.get_level_values('date validité') - issue_date
+        )
+
+        # append column as additional level in row multi-index
+        df = df.set_index('échéances', append=True)
 
         # prepend level to row multi-index for sites
-        s = pd.concat({sim.entite.code: s}, names=['entités'])
+        df = pd.concat({sim.entite.code: df}, names=['entités'])
 
         # reorder levels in row multi-index to match evalhyd convention
-        s.index = s.index.reorder_levels(
-            ['entités', 'échéances', 'membres', 'date émission']
+        df.index = df.index.reorder_levels(
+            ['entités', 'échéances', 'membres', 'date validité']
         )
 
         # concatenate with other sites
-        prd = pd.concat([prd, s])
+        prd = pd.concat([prd, df])
 
     return prd
 
 
 def _convert_frc_df_to_arr(df: pd.DataFrame) -> np.ndarray:
-    # convert emission dates to validity dates
-    df = df.to_frame(name='valeur')
-
-    # compute validity dates from issue dates and lead times
-    validity_dates = (
-        df.index.get_level_values('date émission')
-        + df.index.get_level_values('échéances')
-    )
-
-    # drop issue dates
-    df = df.droplevel('date émission', axis=0)
-
-    # create new column with validity dates
-    df.loc[:, 'date validité'] = validity_dates
+    # turn validity dates level of row multi-index into column
+    df = df.reset_index().set_index(['entités', 'échéances', 'membres'])
 
     # use validity dates as column index
     df = df.pivot(columns='date validité', values='valeur')
@@ -88,10 +74,10 @@ def _convert_frc_df_to_arr(df: pd.DataFrame) -> np.ndarray:
 
 
 def read_frc_from_xml_sandre(
-        xml_files: List[str], return_format='pandas'
+        xml_files: List[str], return_type='dataframe'
 ) -> pd.DataFrame | np.ndarray:
     """Read Sandre XML files containing streamflow forecasts and return
-    as a Python data structure (either a `pandas.Series` or
+    as a Python data structure (either a `pandas.DataFrame` or
     `numpy.ndarray`).
 
     :Parameters:
@@ -100,40 +86,43 @@ def read_frc_from_xml_sandre(
             The list of Sandre XML files from which to extract
             streamflow forecasts.
 
-        return_format: `str`, optional
-            The desired returned format, either ``'pandas'`` for a
-            `pandas.Series` or ``'numpy'`` for a `numpy.ndarray`. If
-            not provided, a `pandas.Series` is returned.
+        return_type: `str`, optional
+            The desired returned format, either ``'dataframe'`` for a
+            `pandas.DataFrame` or ``'array'`` for a `numpy.ndarray`. If
+            an array in requested, its shape corresponds to `evalhyd`
+            convention, i.e. (sites, lead times, members, time). If not
+            provided, a `pandas.DataFrame` is returned.
 
     :Returns:
 
-        `pandas.Series` or `numpy.ndarray`
+        `pandas.DataFrame` or `numpy.ndarray`
             The data structure containing the streamflow forecasts.
 
     **Examples**
 
-    Retreiving streamflow forecasts as a series:
+    Retreiving streamflow forecasts as a dataframe:
 
-    >>> s = read_frc_from_xml_sandre(['data/GRP_B_20241211_1023_5304.xml'])
-    >>> s.xs('K0045510', level='entités', drop_level=False).xs('0001', level='membres', drop_level=False)
-    entités   échéances        membres  date émission
-    K0045510  0 days 01:00:00  0001     2024-12-11 10:00:00    558.0
-              0 days 02:00:00  0001     2024-12-11 10:00:00    553.0
-              0 days 03:00:00  0001     2024-12-11 10:00:00    547.0
-              0 days 04:00:00  0001     2024-12-11 10:00:00    541.0
-              0 days 05:00:00  0001     2024-12-11 10:00:00    535.0
-                                                               ...
-              4 days 20:00:00  0001     2024-12-11 10:00:00    922.0
-              4 days 21:00:00  0001     2024-12-11 10:00:00    904.0
-              4 days 22:00:00  0001     2024-12-11 10:00:00    886.0
-              4 days 23:00:00  0001     2024-12-11 10:00:00    869.0
-              5 days 00:00:00  0001     2024-12-11 10:00:00    852.0
-    Length: 120, dtype: float64
+    >>> df = read_frc_from_xml_sandre(['data/GRP_B_20241211_1023_5304.xml'])
+    >>> df.xs('K0045510', level='entités', drop_level=False).xs('0001', level='membres', drop_level=False)
+                                                            valeur
+    entités  échéances       membres date validité
+    K0045510 0 days 01:00:00 0001    2024-12-11 11:00:00 558.00000
+             0 days 02:00:00 0001    2024-12-11 12:00:00 553.00000
+             0 days 03:00:00 0001    2024-12-11 13:00:00 547.00000
+             0 days 04:00:00 0001    2024-12-11 14:00:00 541.00000
+             0 days 05:00:00 0001    2024-12-11 15:00:00 535.00000
+    ...                                                        ...
+             4 days 20:00:00 0001    2024-12-16 06:00:00 922.00000
+             4 days 21:00:00 0001    2024-12-16 07:00:00 904.00000
+             4 days 22:00:00 0001    2024-12-16 08:00:00 886.00000
+             4 days 23:00:00 0001    2024-12-16 09:00:00 869.00000
+             5 days 00:00:00 0001    2024-12-16 10:00:00 852.00000
+    [120 rows x 1 columns]
 
     Retreiving streamflow forecasts as an array:
 
     >>> arr = read_frc_from_xml_sandre(
-    ...     ['data/GRP_B_20241211_1023_5304.xml'], return_format='numpy'
+    ...     ['data/GRP_B_20241211_1023_5304.xml'], return_type='array'
     ... )  # doctest: +ELLIPSIS
     >>> arr[0, :, 0, :]
     array([[558.,  nan,  nan, ...,  nan,  nan,  nan],
@@ -146,8 +135,8 @@ def read_frc_from_xml_sandre(
     """
 
     # check requested return format
-    if return_format not in ('numpy', 'pandas'):
-        raise ValueError("return_format must be 'numpy' or 'pandas'")
+    if return_type not in ('dataframe', 'array'):
+        raise ValueError("return_type must be 'dataframe' or 'array'")
 
     # loop through XML files
     prd = None
@@ -155,7 +144,7 @@ def read_frc_from_xml_sandre(
         prd = pd.concat([prd, _read_frc_from_xml_sandre(xml_file)])
 
     # return in requested format
-    if return_format == 'numpy':
+    if return_type == 'array':
         return _convert_frc_df_to_arr(prd)
-    else:  # 'pandas'
+    else:  # 'dataframe'
         return prd
