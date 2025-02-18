@@ -90,6 +90,61 @@ def _convert_frc_df_to_arr(df: pd.DataFrame) -> np.ndarray:
 def read_frc_from_xml_sandre(
         xml_files: List[str], return_format='pandas'
 ) -> pd.DataFrame | np.ndarray:
+    """Read Sandre XML files containing streamflow forecasts and return
+    as a Python data structure (either a `pandas.Series` or
+    `numpy.ndarray`).
+
+    :Parameters:
+
+        xml_files: `list`
+            The list of Sandre XML files from which to extract
+            streamflow forecasts.
+
+        return_format: `str`, optional
+            The desired returned format, either ``'pandas'`` for a
+            `pandas.Series` or ``'numpy'`` for a `numpy.ndarray`. If
+            not provided, a `pandas.Series` is returned.
+
+    :Returns:
+
+        `pandas.Series` or `numpy.ndarray`
+            The data structure containing the streamflow forecasts.
+
+    **Examples**
+
+    Retreiving streamflow forecasts as a series:
+
+    >>> s = read_frc_from_xml_sandre(['data/GRP_B_20241211_1023_5304.xml'])
+    >>> s.xs('K0045510', level='entités', drop_level=False).xs('0001', level='membres', drop_level=False)
+    entités   échéances        membres  date émission
+    K0045510  0 days 01:00:00  0001     2024-12-11 10:00:00    558.0
+              0 days 02:00:00  0001     2024-12-11 10:00:00    553.0
+              0 days 03:00:00  0001     2024-12-11 10:00:00    547.0
+              0 days 04:00:00  0001     2024-12-11 10:00:00    541.0
+              0 days 05:00:00  0001     2024-12-11 10:00:00    535.0
+                                                               ...
+              4 days 20:00:00  0001     2024-12-11 10:00:00    922.0
+              4 days 21:00:00  0001     2024-12-11 10:00:00    904.0
+              4 days 22:00:00  0001     2024-12-11 10:00:00    886.0
+              4 days 23:00:00  0001     2024-12-11 10:00:00    869.0
+              5 days 00:00:00  0001     2024-12-11 10:00:00    852.0
+    Length: 120, dtype: float64
+
+    Retreiving streamflow forecasts as an array:
+
+    >>> arr = read_frc_from_xml_sandre(
+    ...     ['data/GRP_B_20241211_1023_5304.xml'], return_format='numpy'
+    ... )  # doctest: +ELLIPSIS
+    >>> arr[0, :, 0, :]
+    array([[558.,  nan,  nan, ...,  nan,  nan,  nan],
+           [ nan, 553.,  nan, ...,  nan,  nan,  nan],
+           [ nan,  nan, 547., ...,  nan,  nan,  nan],
+           ...,
+           [ nan,  nan,  nan, ..., 886.,  nan,  nan],
+           [ nan,  nan,  nan, ...,  nan, 869.,  nan],
+           [ nan,  nan,  nan, ...,  nan,  nan, 852.]])
+    """
+
     # check requested return format
     if return_format not in ('numpy', 'pandas'):
         raise ValueError("return_format must be 'numpy' or 'pandas'")
