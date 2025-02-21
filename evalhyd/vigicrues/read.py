@@ -53,7 +53,7 @@ def _read_frc_from_xml_sandre(xml_file: str) -> pd.DataFrame:
     return prd
 
 
-def _convert_frc_df_to_arr(df: pd.DataFrame) -> np.ndarray:
+def convert_frc_df_to_arr(df: pd.DataFrame) -> np.ndarray:
     # turn validity dates level of row multi-index into column
     df = df.reset_index().set_index(['entités', 'échéances', 'membres'])
 
@@ -74,7 +74,7 @@ def _convert_frc_df_to_arr(df: pd.DataFrame) -> np.ndarray:
 
 
 def read_frc_from_xml_sandre(
-        xml_files: List[str], return_type='dataframe'
+        xml_files: List[str], return_format='dataframe'
 ) -> pd.DataFrame | np.ndarray:
     """Read Sandre XML files containing streamflow forecasts and return
     as a Python data structure (either a `pandas.DataFrame` or
@@ -86,7 +86,7 @@ def read_frc_from_xml_sandre(
             The list of Sandre XML files from which to extract
             streamflow forecasts.
 
-        return_type: `str`, optional
+        return_format: `str`, optional
             The desired returned format, either ``'dataframe'`` for a
             `pandas.DataFrame` or ``'array'`` for a `numpy.ndarray`. If
             an array in requested, its shape corresponds to `evalhyd`
@@ -122,7 +122,7 @@ def read_frc_from_xml_sandre(
     Retreiving streamflow forecasts as an array:
 
     >>> arr = read_frc_from_xml_sandre(
-    ...     ['data/GRP_B_20241211_1023_5304.xml'], return_type='array'
+    ...     ['data/GRP_B_20241211_1023_5304.xml'], return_format='array'
     ... )  # doctest: +ELLIPSIS
     >>> arr[0, :, 0, :]
     array([[558.,  nan,  nan, ...,  nan,  nan,  nan],
@@ -135,8 +135,8 @@ def read_frc_from_xml_sandre(
     """
 
     # check requested return format
-    if return_type not in ('dataframe', 'array'):
-        raise ValueError("return_type must be 'dataframe' or 'array'")
+    if return_format not in ('dataframe', 'array'):
+        raise ValueError("return_format must be 'dataframe' or 'array'")
 
     # loop through XML files
     prd = None
@@ -144,7 +144,7 @@ def read_frc_from_xml_sandre(
         prd = pd.concat([prd, _read_frc_from_xml_sandre(xml_file)])
 
     # return in requested format
-    if return_type == 'array':
-        return _convert_frc_df_to_arr(prd)
+    if return_format == 'array':
+        return convert_frc_df_to_arr(prd)
     else:  # 'dataframe'
         return prd
