@@ -76,31 +76,36 @@ def convert_frc_df_to_arr(df: pd.DataFrame) -> np.ndarray:
 def read_frc_from_xml_sandre(
         xml_files: List[str], return_format='dataframe'
 ) -> pd.DataFrame | np.ndarray:
-    """Read Sandre XML files containing streamflow forecasts and return
-    as a Python data structure (either a `pandas.DataFrame` or
-    `numpy.ndarray`).
+    """Lire les fichiers au format XML-SANDRE contenant les prédictions
+    de débits et retourner sous forme de structure de données Python
+    (soit une `pandas.DataFrame` ou une `numpy.ndarray`).
 
-    :Parameters:
+    :Paramètres:
 
         xml_files: `list`
-            The list of Sandre XML files from which to extract
-            streamflow forecasts.
+            La liste de fichiers au format XML-SANDRE contenant les
+            prédictions de débits.
 
-        return_format: `str`, optional
+        return_format: `str`, optionnel
             The desired returned format, either ``'dataframe'`` for a
             `pandas.DataFrame` or ``'array'`` for a `numpy.ndarray`. If
             an array in requested, its shape corresponds to `evalhyd`
             convention, i.e. (sites, lead times, members, time). If not
             provided, a `pandas.DataFrame` is returned.
 
-    :Returns:
+            Le format désiré pour les prédictions de débit, soit
+            ``'dataframe'`` pour obtenir une `pandas.DataFrame` ou
+            ``'array'`` pour obtenir une `numpy.ndarray`. Si le format
+            n'est pas fourni, une dataframe est retournée.
 
-        `pandas.DataFrame` or `numpy.ndarray`
-            The data structure containing the streamflow forecasts.
+    :Retourne:
 
-    **Examples**
+        `pandas.DataFrame` ou `numpy.ndarray`
+            La structure de données contenant les prédictions de débits.
 
-    Retreiving streamflow forecasts as a dataframe:
+    **Exemples**
+
+    Récupérer les prédictions de débits sous forme de dataframe :
 
     >>> df = read_frc_from_xml_sandre(['data/GRP_B_20241211_1023_5304.xml'])
     >>> df.xs('K0045510', level='entités', drop_level=False).xs('0001', level='membres', drop_level=False)
@@ -119,7 +124,7 @@ def read_frc_from_xml_sandre(
              5 days 00:00:00 0001    2024-12-16 10:00:00 852.00000
     [120 rows x 1 columns]
 
-    Retreiving streamflow forecasts as an array:
+    Récupérer les prédictions de débits sous forme de matrice :
 
     >>> arr = read_frc_from_xml_sandre(
     ...     ['data/GRP_B_20241211_1023_5304.xml'], return_format='array'
@@ -136,7 +141,7 @@ def read_frc_from_xml_sandre(
 
     # check requested return format
     if return_format not in ('dataframe', 'array'):
-        raise ValueError("return_format must be 'dataframe' or 'array'")
+        raise ValueError("return_format doit être 'dataframe' ou 'array'")
 
     # loop through XML files
     prd = None
