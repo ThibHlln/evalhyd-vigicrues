@@ -64,5 +64,11 @@ setup(
 
     packages=['evalhyd.vigicrues'],
 
+    package_data={
+        'evalhyd.vigicrues': [
+            'evald.toml',
+        ]
+    },
+
     install_requires=read_requirements('requirements.txt')
 )
