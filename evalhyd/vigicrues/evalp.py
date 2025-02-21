@@ -160,13 +160,14 @@ def evalp(
         q_obs, arr_prd, metrics,
         q_thr, events, c_lvl, t_msk, m_cdt,
         # TODO: drop requirement for dts and use input dataframes instead
-        bootstrap, dts, seed,  
+        bootstrap, dts, seed,
         diagnostics
     )
 
     if return_format == 'arrays':
         return {
-            metric: res_as_arr[m] for m, metric in enumerate(metrics)
+            metric: res_as_arr[m]
+            for m, metric in enumerate(metrics + diagnostics)
         }
     else:  # 'dataframes'
 
@@ -244,9 +245,12 @@ def evalp(
 
                 # special case for multi-sites metrics
                 if 'toutes entités' in _levels[metric]:
+                    # rename index level name
                     df.index = df.index.set_names(
                         'entités', level='toutes entités'
                     )
+                    # leave sites loop as there is only one item
+                    # for multi-sites metrics
                     break
 
             res_as_df[metric] = df
