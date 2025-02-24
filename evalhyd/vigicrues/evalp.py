@@ -166,14 +166,14 @@ def evalp(
 
     if return_format == 'arrays':
         return {
-            metric: res_as_arr[m]
-            for m, metric in enumerate(metrics + diagnostics)
+            indicator: res_as_arr[i]
+            for i, indicator in enumerate(metrics + diagnostics)
         }
     else:  # 'dataframes'
 
         res_as_df = {}
 
-        for m, metric in enumerate(metrics + diagnostics):
+        for i, indicator in enumerate(metrics + diagnostics):
 
             n_mbr = arr_prd.shape[2]
 
