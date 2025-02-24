@@ -205,11 +205,11 @@ def evalp(
                         dict(
                             BS_CRD=['fiabilité', 'finesse', 'incertitude'],
                             BS_LBD=['biais', 'discrimination', 'finesse'],
-                        ).get(metric, None),
+                        ).get(indicator, None),
                     'axes':
                         dict(
                             REL_DIAG=['x', 'y', 'ordinates'],
-                        ).get(metric, None),
+                        ).get(indicator, None),
                     'niveaux':
                         np.arange(n_mbr + 1),
                     'classes':
@@ -233,18 +233,18 @@ def evalp(
                     [
                         df,
                         pd.DataFrame(
-                            data=res_as_arr[m][s].flatten(),
+                            data=res_as_arr[i][s].flatten(),
                             index=pd.MultiIndex.from_product(
                                 iterables=[level_values[dim] for dim in
-                                           _levels[metric]],
-                                names=_levels[metric]
+                                           _levels[indicator]],
+                                names=_levels[indicator]
                             )
                         )
                     ]
                 )
 
                 # special case for multi-sites metrics
-                if 'toutes entités' in _levels[metric]:
+                if 'toutes entités' in _levels[indicator]:
                     # rename index level name
                     df.index = df.index.set_names(
                         'entités', level='toutes entités'
@@ -253,6 +253,6 @@ def evalp(
                     # for multi-sites metrics
                     break
 
-            res_as_df[metric] = df
+            res_as_df[indicator] = df
 
         return res_as_df
