@@ -155,7 +155,7 @@ def evalp(
     )
     arr_prd = convert_frc_df_to_arr(df_prd)
 
-    # call evalhyd
+    # call evalhyd function
     res_as_arr = evalhyd.evalp(
         q_obs, arr_prd, metrics,
         q_thr, events, c_lvl, t_msk, m_cdt,
@@ -183,7 +183,7 @@ def evalp(
                 # determine values to use for row multi-index levels
                 level_values = {
                     'entités':
-                        df_prd.index.levels[0][[s]],
+                        [site],
                     'toutes entités':
                         ['toutes'],
                     'échéances':
