@@ -3,7 +3,7 @@ import toml
 import numpy as np
 import pandas as pd
 from typing import List, Dict
-from evalhyd import evalp as evalhyd_evalp
+import evalhyd
 
 from .read import read_frc_from_xml_sandre, convert_frc_df_to_arr
 
@@ -156,7 +156,7 @@ def evalp(
     arr_prd = convert_frc_df_to_arr(df_prd)
 
     # call evalhyd
-    res_as_arr = evalhyd_evalp(
+    res_as_arr = evalhyd.evalp(
         q_obs, arr_prd, metrics,
         q_thr, events, c_lvl, t_msk, m_cdt,
         # TODO: drop requirement for dts and use input dataframes instead
