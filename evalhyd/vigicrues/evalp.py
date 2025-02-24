@@ -107,7 +107,7 @@ def evalp(
              effectué. Si les valeurs sont fournies, *dts* doit
              également être fourni.
 
-             *Parameter example:*
+             *Exemple de paramètre :*
 
             .. code-block:: python
 
