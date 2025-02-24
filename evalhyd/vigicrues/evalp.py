@@ -165,6 +165,7 @@ def evalp(
     )
 
     if return_format == 'arrays':
+        # return arrays wrapped in a dictionary rather than a list
         return {
             indicator: res_as_arr[i]
             for i, indicator in enumerate(metrics + diagnostics)

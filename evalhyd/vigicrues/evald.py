@@ -163,6 +163,7 @@ def evald(
             diagnostics
         )
 
+        # stack arrays in leadtime order on new intermediate axis
         if res_as_arr is not None:
             res_as_arr = [
                 np.stack([r1, r2], axis=1) for r1, r2 in zip(res_as_arr, res)
@@ -171,6 +172,7 @@ def evald(
             res_as_arr = res
 
     if return_format == 'arrays':
+        # return arrays wrapped in a dictionary rather than a list
         return {
             indicator: res_as_arr[i]
             for i, indicator in enumerate(metrics + diagnostics)
