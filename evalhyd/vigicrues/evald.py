@@ -48,21 +48,6 @@ def evald(
             La liste d'indicateurs d'évaluation à calculer.
             dimensions : (indicateurs,)
 
-        events: `str`, optionnel
-            Le type de dépassement de seuil à considérer pour les
-            indicateurs basés sur des seuils de dépassement. Il peut
-            être défini soit comme `"high"` pour l'évaluation
-            d'événements de crues (c'est-à-dire quand le débit passe
-            au-dessus du seuil) soit comme `"low"` pour l'évaluation
-            d'événements d'étiages (c'est-à-dire quand le débit passe
-            en-dessous du seuil). Il doit être fourni si *q_thr* est
-            fourni.
-
-        c_lvl: `numpy.ndarray` ``[dtype('float64')]``, optionnel
-            Le vecteur d'intervalle(s) de confiance en pourcents à
-            considérer pour les indicateurs basés sur des intervalles.
-            dimensions : (intervalles,)
-
         t_msk: `numpy.ndarray` ``[dtype('bool')]``, optionnel
             La matrice 4D contenant les masques permettant des générer
             des sous-ensembles des chroniques de débits (où `True`/
