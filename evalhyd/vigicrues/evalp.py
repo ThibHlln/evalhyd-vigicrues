@@ -201,7 +201,7 @@ def evalp(
                         f"{'≥' if events == 'high' else '≤'}{q}"
                         for q in q_thr[s]
                     ],
-                    'components':
+                    'composantes':
                         dict(
                             BS_CRD=['fiabilité', 'finesse', 'incertitude'],
                             BS_LBD=['biais', 'discrimination', 'finesse'],
