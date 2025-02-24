@@ -67,6 +67,7 @@ setup(
     package_data={
         'evalhyd.vigicrues': [
             'evald.toml',
+            'evalp.toml'
         ]
     },
 
