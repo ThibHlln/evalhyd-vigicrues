@@ -21,3 +21,4 @@ AW = ["entités", "échéances", "sous-ensembles", "échantillons", "intervalles
 AWN = ["entités", "échéances", "sous-ensembles", "échantillons", "intervalles"]
 WS = ["entités", "échéances", "sous-ensembles", "échantillons", "intervalles"]
 ES = ["toutes entités", "échéances", "sous-ensembles", "échantillons"]
+completeness = ["entités", "échéances", "sous-ensembles", "échantillons"]
