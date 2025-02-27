@@ -1,5 +1,8 @@
 """A Python add-on to evalhyd providing pre- and post-processing functionalities specific to VigiCrues forecasts."""
 
 from .version import __version__
-from .evald import evald
-from .evalp import evalp
+
+from .read import read_frc_from_xml_sandre
+from .evaluate import evald
+from .evaluate import evalp
+from .plot import plot_rank_hist
