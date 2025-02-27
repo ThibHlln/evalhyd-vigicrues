@@ -5,7 +5,7 @@ import pandas as pd
 from typing import List, Dict
 import evalhyd
 
-from .read import read_frc_from_xml_sandre, convert_frc_df_to_arr
+from ..read import read_frc_from_xml_sandre, convert_frc_df_to_arr
 
 
 _levels = toml.load(
