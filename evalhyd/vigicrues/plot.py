@@ -1,0 +1,249 @@
+import os
+import re
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import numpy as np
+import pandas as pd
+from typing import Tuple
+
+
+def _format_timedelta(timedelta: pd.Timedelta) -> str:
+    components = {
+        'days': 'j', 'hours': 'h', 'minutes': 'min',
+        'seconds': 's', 'milliseconds': 'ms',
+        'microseconds': 'us', 'nanoseconds': 'ns'
+    }
+
+    return "".join(
+        f"{getattr(timedelta.components, c)}{components[c]}"
+        for c in components.keys()
+        if getattr(timedelta.components, c) != 0
+    )
+
+
+def plot_rank_hist(
+        rank_hist: pd.DataFrame, row: str = None, col: str = None,
+        figsize: Tuple[float | int, float | int] = None,
+        savefig_kwargs: dict = None, output_dir: str = '.'
+):
+    """Générer des diagrammes de rangs à partir des données de sortie
+    de la fonction `evalhyd.vigicrues.evalp`.
+
+    .. note::
+
+       Pour des données multi-entités et/ou multi-échéances et/ou
+       multi-sous-ensembles, une figure par entité, par échéance et par
+       sous-ensemble est générée par défaut. Les paramètres *row* et
+       *col* peuvent être utilisés pour afficher toutes les entités
+       et/ou toutes les échéances et/ou tous les sous-ensembles sur une
+       même figure.
+
+    .. note::
+
+       Les noms de fichiers sont standardisés et détaillent leur
+       contenu. Ainsi, les noms contiennent les entités suivies des
+       échéances suivies des sous-ensembles. Si les paramètres *row*
+       et/ou *col* sont utilisés, les noms de fichiers sont modifiés
+       en conséquence et contiennent toutes-entités et/ou
+       toutes-échéances et/ou tous-sous-ensembles selon les cas.
+
+    .. warning::
+
+       Les données de sortie comportant un échantillonnage par bootstrap
+       ne sont pas supportées par cette fonction.
+
+    :Paramètres:
+
+        rank_hist: `pandas.DataFrame`
+            La dataframe produite par `evalhyd.vigicrues.evalp`
+            correspondant à l'indicateur RANK_HIST.
+
+        row: `str`, optionnel
+            À utiliser pour produire des figures contenant plusieurs
+            diagrammes de rangs côte-à-côte. La dimension fournie
+            via ce paramètre sera utilisée pour former une ligne
+            de diagrammes de rangs. Utilisé en combinaison avec
+            le paramètre *col* produira une matrice 2D de diagrammes
+            de rangs.
+
+        col: `str`, optionnel
+            À utiliser pour produire des figures contenant plusieurs
+            diagrammes de rangs côte-à-côte. La dimension fournie
+            via ce paramètre sera utilisée pour former une colonne
+            de diagrammes de rangs. Utilisé en combinaison avec
+            le paramètre *row* produira une matrice 2D de diagrammes
+            de rangs.
+
+        figsize: `tuple`, optionnel
+            La largeur et la hauteur en pouces des figures produites.
+
+        savefig_kwargs: `str`, optionnel
+            Les arguments à passer à `matplotlib.figure.Figure.savefig`
+            pour personnaliser les figures produites. Parmi les
+            paramètres possibles, ceux définis par cette fonction pour
+            défaut sont ``format='png'`` et ``dpi=300``. Ils seront
+            écrasés par ceux passés via ce paramètre le cas échéant.
+
+        output_dir: `str`, optionnel
+            Le chemin absolu ou relatif vers le répertoire où les
+            images seront sauvegardées. Si ce paramètre n'est pas
+            fourni, le répertoire de travail courant est utilisé.
+
+    :Retourne:
+
+        `None`
+    """
+    # check levels of multi-index
+    if rank_hist.index.names != [
+            'entités', 'échéances', 'sous-ensembles', 'rangs'
+    ]:
+        raise RuntimeError(
+            "'rank_hist' ne semble pas être une "
+            "dataframe de diagrammes de rangs"
+        )
+
+    # check validity of the X,Y axes
+    lvl_axes = (row if row else None, col if col else None)
+    for axis in (row, col):
+        if axis not in ('entités', 'échéances', 'sous-ensembles', None):
+            raise ValueError(
+                "les axes x et y ne peuvent être que 'entités' ou "
+                "ou 'échéances' ou 'sous-ensembles'"
+            )
+
+    lvl_left = (
+        {'entités', 'échéances', 'sous-ensembles'}.difference(lvl_axes)
+    )
+
+    # retrieve multi-index level values
+    level_values = {
+        name: level for name, level in zip(
+            rank_hist.index.names, rank_hist.index.levels
+        )
+    }
+    level_values[None] = [slice(None)]
+
+    # check that RANK_HIST was not computed with bootstrapping
+    if len(level_values['échantillons']) > 1:
+        raise ValueError(
+            "visualisation non autorisée pour des résultats issus "
+            "d'un échantillonnage par bootstrap"
+        )
+
+    # determine values of potential levels to loop through
+    sites = (
+        level_values['entités'] if 'entités' in lvl_left
+        else [slice(None)]
+    )
+    leadtimes = (
+        level_values['échéances'] if 'échéances' in lvl_left
+        else [slice(None)]
+    )
+    subsets = (
+        level_values['sous-ensembles'] if 'sous-ensembles' in lvl_left
+        else [slice(None)]
+    )
+
+    # loop through levels
+    for site in sites:
+        for leadtime in leadtimes:
+            for s, subset in enumerate(subsets, start=1):
+                rows = level_values[row]
+                cols = level_values[col]
+
+                # create figure and grid spec
+                w_in =  8.
+                h_in = 6.
+                width = w_in * len(cols)
+                height = h_in * len(rows)
+                if width > height:
+                    scale = w_in / width
+                else:
+                    scale = h_in / height
+
+                fig = plt.figure(
+                    figsize=(
+                        figsize if figsize
+                        else (width * scale + 1, height * scale + 1)
+                    ),
+                    layout='compressed'
+                )
+                gs = mpl.gridspec.GridSpec(
+                    len(rows), len(cols), figure=fig
+                )
+
+                # slice dataframe to focus on content in a single figure
+                df = rank_hist.loc[(site, leadtime, subset, 'aucun'), :]
+
+                # plot histograms on separate axes
+                for r, row_ in enumerate(rows):
+                    for c, col_ in enumerate(cols):
+                        # further slide dataframe to focus on content
+                        # in a single axis
+                        df_ = df
+                        if row:
+                            df_ = df_.xs(row_, level=row)
+                        if col:
+                            df_ = df_.xs(col_, level=col)
+
+                        # plot histogram
+                        ranks = np.arange(len(df_)) + 1
+
+                        ax = fig.add_subplot(gs[r, c])
+                        ax.bar(
+                            ranks, df_.to_numpy().squeeze(),
+                            color="tab:blue", width=1.0
+                        )
+
+                        if row and c == 0:
+                            ax.set_ylabel(
+                                f"+{_format_timedelta(row_)}"
+                                if row == 'échéances' else row_
+                            )
+                        if col and r == len(rows) - 1:
+                            ax.set_xlabel(
+                                f"+{_format_timedelta(col_)}"
+                                if col == 'échéances' else col_
+                            )
+
+                        ax.set_xticks([])
+                        ax.set_yticks([])
+
+                if row:
+                    fig.supylabel(row)
+                if col:
+                    fig.supxlabel(col)
+
+                # save figure with custom file name
+                formatted_leadtime = (
+                    _format_timedelta(leadtime) if leadtime != slice(None)
+                    else 'toutes-échéances'
+                )
+
+                kwargs = dict(
+                    format='png', dpi=300
+                )
+                if savefig_kwargs:
+                    kwargs.update(savefig_kwargs)
+
+                # save figure with custom file name
+                filename = (
+                    f"{output_dir}{os.sep}"
+                    f"{site if site != slice(None) else 'toutes-entités'}"
+                    f"+{formatted_leadtime}"
+                    f"+{s if subset != slice(None) else 'tous-sous-ensembles'}"
+                )
+
+                # clean up filename from problematic characters
+                # (https://stackoverflow.com/a/71199182)
+                filename = re.sub(
+                    r"[/\\?%*:|\"<>\x7F\x00-\x1F]", "_", filename
+                )
+
+                fig.savefig(filename, **kwargs)
+
+                plt.close(fig)
+
+
+def plot_rel_diag(rel_diag):
+    ...
