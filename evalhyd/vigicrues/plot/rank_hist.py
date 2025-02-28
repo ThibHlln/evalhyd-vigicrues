@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
-from typing import Tuple
+from typing import Tuple, List
 
 
 def _format_timedelta(timedelta: pd.Timedelta) -> str:
@@ -25,7 +25,7 @@ def plot_rank_hist(
         rank_hist: pd.DataFrame, row: str = None, col: str = None,
         figsize: Tuple[float | int, float | int] = None,
         savefig_kwargs: dict = None, output_dir: str = '.'
-):
+) -> List[str]:
     """Générer des diagrammes de rangs à partir des données de sortie
     de la fonction `evalhyd.vigicrues.evalp`.
 
@@ -91,7 +91,9 @@ def plot_rank_hist(
 
     :Retourne:
 
-        `None`
+        `List[str]`
+            L'ensemble des chemins des fichiers produits par la fonction.
+
     """
     # check levels of multi-index
     if rank_hist.index.names != [
@@ -145,6 +147,8 @@ def plot_rank_hist(
     )
 
     # loop through levels
+    filepaths = list()
+
     for site in sites:
         for leadtime in leadtimes:
             for s, subset in enumerate(subsets, start=1):
@@ -228,7 +232,6 @@ def plot_rank_hist(
 
                 # save figure with custom file name
                 filename = (
-                    f"{output_dir}{os.sep}"
                     f"{site if site != slice(None) else 'toutes-entités'}"
                     f"+{formatted_leadtime}"
                     f"+{s if subset != slice(None) else 'tous-sous-ensembles'}"
@@ -240,9 +243,15 @@ def plot_rank_hist(
                     r"[/\\?%*:|\"<>\x7F\x00-\x1F]", "_", filename
                 )
 
-                fig.savefig(filename, **kwargs)
+                filepath = f"{output_dir}{os.sep}{filename}.{kwargs['format']}"
+
+                fig.savefig(filepath, **kwargs)
+
+                filepaths.append(os.path.abspath(filepath))
 
                 plt.close(fig)
+
+    return filepaths
 
 
 def plot_rel_diag(rel_diag):
