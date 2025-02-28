@@ -97,7 +97,7 @@ def plot_rank_hist(
     """
     # check levels of multi-index
     if rank_hist.index.names != [
-            'entités', 'échéances', 'sous-ensembles', 'rangs'
+            'entités', 'échéances', 'sous-ensembles', 'échantillons', 'rangs'
     ]:
         raise RuntimeError(
             "'rank_hist' ne semble pas être une "
