@@ -5,7 +5,8 @@ import pandas as pd
 from typing import List, Dict
 import evalhyd
 
-from ..read import read_frc_from_xml_sandre, convert_frc_df_to_arr
+from ..read import read_frc_from_xml_sandre
+from ._convert import convert_frc_df_to_arr
 
 
 _levels = toml.load(
@@ -150,9 +151,7 @@ def evalp(
         raise ValueError("return_format must be 'dataframes' or 'arrays'")
 
     # load prediction data
-    df_prd = read_frc_from_xml_sandre(
-        xml_files_prd, return_format='dataframe'
-    )
+    df_prd = read_frc_from_xml_sandre(xml_files_prd)
     arr_prd = convert_frc_df_to_arr(df_prd)
 
     # call evalhyd function

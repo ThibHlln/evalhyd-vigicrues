@@ -7,7 +7,8 @@ from numpy import dtype
 from numpy.typing import NDArray
 import evalhyd
 
-from ..read import read_frc_from_xml_sandre, convert_frc_df_to_arr
+from ..read import read_frc_from_xml_sandre
+from ._convert import convert_frc_df_to_arr
 
 
 _levels = toml.load(
@@ -141,9 +142,7 @@ def evald(
         raise ValueError("member_agg_method must be 'mean' or 'median'")
 
     # load prediction data
-    df_prd = read_frc_from_xml_sandre(
-        xml_files_prd, return_format='dataframe'
-    )
+    df_prd = read_frc_from_xml_sandre(xml_files_prd)
     arr_prd = convert_frc_df_to_arr(df_prd)
 
     # apply aggregation to ensemble members
