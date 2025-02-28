@@ -49,10 +49,36 @@ def read_frc_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
         df1 = None
 
         for sim in d['simulations']:
-            # extract ensemble predictions dataframe
-            df0 = sim.prevs_ensemble
+            # extract predictions dataframe
+            if sim.prevs_ensemble is not None:
+                # extract ensemble predictions
+                df0 = sim.prevs_ensemble
 
-            # select result column (drop weight column)
+                # rename multi-index levels
+                df0.index = df0.index.rename(
+                    {
+                        'lb': 'membres',
+                        'dte': 'date validité'
+                    }
+                )
+            elif sim.previsions_tend is not None:
+                # extract trend predictions
+                df0 = sim.previsions_tend
+
+                # rename multi-index levels
+                df0.index = df0.index.rename(
+                    {
+                        'tend': 'membres',
+                        'dte': 'date validité'
+                    }
+                )
+            else:
+                raise RuntimeError(
+                    f"Le fichier {xml_file} ne contient pas de "
+                    f"prévisions ensemblistes ou de tendances"
+                )
+
+            # select result column (drop other columns)
             df0 = df0.loc[:, ['res']]
 
             # collect forecast issue date
