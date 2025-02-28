@@ -204,7 +204,7 @@ def evald(
 
             df = None
 
-            for s, site in df_prd.index.levels[0]:
+            for s, site in enumerate(df_prd.index.levels[0]):
                 # determine values to use for row multi-index levels
                 level_values = {
                     'entités':
