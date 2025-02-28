@@ -257,7 +257,7 @@ def evalp(
                         pd.DataFrame(
                             data=res_as_arr[i][s].flatten(),
                             index=pd.MultiIndex.from_product(
-                                iterables=[level_values[dim] for dim in
+                                iterables=[level_values[lvl] for lvl in
                                            _levels[indicator]],
                                 names=_levels[indicator]
                             )
