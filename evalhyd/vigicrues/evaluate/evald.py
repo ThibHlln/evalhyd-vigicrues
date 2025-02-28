@@ -7,7 +7,7 @@ from numpy import dtype
 from numpy.typing import NDArray
 import evalhyd
 
-from ..read import read_frc_from_xml_sandre
+from ..read import read_frc_from_xml_sandre, read_frc_from_prv
 from ._convert import convert_frc_df_to_arr
 
 
@@ -17,13 +17,13 @@ _levels = toml.load(
 
 
 def evald(
-        q_obs: NDArray[dtype('float64')], xml_files_prd: List[str],
+        q_obs: NDArray[dtype('float64')], prd_files: List[str],
         metrics: List[str], transform: str = None, exponent: float = None,
         epsilon: float = None, t_msk: NDArray[dtype('bool')] = None,
         m_cdt: NDArray[dtype('|S32')] = None, bootstrap: Dict[str, int] = None,
         dts: NDArray[dtype('|S32')] = None, seed: int = None,
         diagnostics: List[str] = None, member_agg_method: str = 'mean',
-        return_format: str = 'dataframes'
+        prv_datatype: str = None, return_format: str = 'dataframes'
 ) -> Dict[str, np.ndarray | pd.DataFrame]:
     """Fonction pour évaluer des predictions déterministes de débits.
 
@@ -37,12 +37,13 @@ def evald(
             indicateurs soient calculés.
             dimensions : (entités, temps)
 
-        xml_files_prd: `list`
-            La liste de fichiers au format XML-SANDRE contenant les
-            prédictions de débits. Les pas de temps sans observations
-            doivent être assignés des valeurs `numpy.nan`. Ces pas de
-            temps seront ignorés à la fois dans les observations et les
-            prédictions avant que les indicateurs soient calculés.
+        prd_files: `List[str]`
+            La liste de fichiers au format XML-SANDRE (extension *.xml)
+            ou au format PRV (extension *.prv) contenant les prédictions
+            de débits. Le format de fichier est déterminé à partir de
+            l'extension du premier fichier dans la liste. Si les
+            fichiers sont au format PRV, le paramètre *prv_datatype*
+            doit être défini.
             dimensions : (entités, échéances, membres, temps)
 
         metrics: `List[str]`
@@ -121,6 +122,12 @@ def evald(
             moyenne ``'mean'`` ou médiane ``'median'``. Si la méthode
             n'est pas fournie, la moyenne des membres sera utilisée.
 
+        prv_datatype: `str`, optionnel
+            Le type du fichier de données PRV parmi ``'otamin16_fcst'``,
+            ``'otamin18_fcst'``, ``'scores_fcst'``. Ce paramètre est
+            obligatoire si la liste de fichiers fournie pour
+            *prd_files*, sinon ce paramètre ignoré.
+
         return_format: `str`, optionnel
             Le format désiré pour les indicateurs d'évaluation, soit
             ``'dataframes'`` pour obtenir des `pandas.DataFrame` ou
@@ -142,7 +149,20 @@ def evald(
         raise ValueError("member_agg_method must be 'mean' or 'median'")
 
     # load prediction data
-    df_prd = read_frc_from_xml_sandre(xml_files_prd)
+    if prd_files[0][-4:] == ".xml":
+        df_prd = read_frc_from_xml_sandre(prd_files)
+    elif prd_files[0][-4:] == ".prv":
+        if prv_datatype is None:
+            raise RuntimeError(
+                "'prv_datatype' doit être fourni quand les "
+                "fichiers de prédictions sont au format PRV"
+            )
+        df_prd = read_frc_from_prv(prd_files, datatype=prv_datatype)
+    else:
+        raise ValueError(
+            "les fichiers de prédictions doivent contenir "
+            "l'extension *.xml ou *.prv"
+        )
     arr_prd = convert_frc_df_to_arr(df_prd)
 
     # apply aggregation to ensemble members

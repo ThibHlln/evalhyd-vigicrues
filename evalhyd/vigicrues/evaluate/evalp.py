@@ -5,7 +5,7 @@ import pandas as pd
 from typing import List, Dict
 import evalhyd
 
-from ..read import read_frc_from_xml_sandre
+from ..read import read_frc_from_xml_sandre, read_frc_from_prv
 from ._convert import convert_frc_df_to_arr
 
 
@@ -15,12 +15,12 @@ _levels = toml.load(
 
 
 def evalp(
-        q_obs: np.ndarray, xml_files_prd: List[str], metrics: List[str],
+        q_obs: np.ndarray, prd_files: List[str], metrics: List[str],
         q_thr: np.ndarray = None, events: str = None, c_lvl: np.ndarray = None,
         t_msk: np.ndarray = None, m_cdt: np.ndarray = None,
         bootstrap: Dict[str, int] = None, dts: np.ndarray = None,
         seed: int = None, diagnostics: List[str] = None,
-        return_format: str = 'dataframes'
+        prv_datatype: str = None, return_format: str = 'dataframes'
 ) -> Dict[str, np.ndarray | pd.DataFrame]:
     """Fonction pour évaluer des predictions probabilistes de débits.
 
@@ -34,12 +34,13 @@ def evalp(
             indicateurs soient calculés.
             dimensions : (entités, temps)
 
-        xml_files_prd: `list`
-            La liste de fichiers au format XML-SANDRE contenant les
-            prédictions de débits. Les pas de temps sans observations
-            doivent être assignés des valeurs `numpy.nan`. Ces pas de
-            temps seront ignorés à la fois dans les observations et les
-            prédictions avant que les indicateurs soient calculés.
+        prd_files: `List[str]`
+            La liste de fichiers au format XML-SANDRE (extension *.xml)
+            ou au format PRV (extension *.prv) contenant les prédictions
+            de débits. Le format de fichier est déterminé à partir de
+            l'extension du premier fichier dans la liste. Si les
+            fichiers sont au format PRV, le paramètre *prv_datatype*
+            doit être défini.
             dimensions : (entités, échéances, membres, temps)
 
         metrics: `List[str]`
@@ -134,6 +135,12 @@ def evalp(
             calculer.
             dimensions : (variables,)
 
+        prv_datatype: `str`, optionnel
+            Le type du fichier de données PRV parmi ``'otamin16_fcst'``,
+            ``'otamin18_fcst'``, ``'scores_fcst'``. Ce paramètre est
+            obligatoire si la liste de fichiers fournie pour
+            *prd_files*, sinon ce paramètre ignoré.
+
         return_format: `str`, optionnel
             Le format désiré pour les indicateurs d'évaluation, soit
             ``'dataframes'`` pour obtenir des `pandas.DataFrame` ou
@@ -148,10 +155,25 @@ def evalp(
     """
     # check requested return format
     if return_format not in ('dataframes', 'arrays'):
-        raise ValueError("return_format must be 'dataframes' or 'arrays'")
+        raise ValueError(
+            "'return_format' must be 'dataframes' or 'arrays'"
+        )
 
     # load prediction data
-    df_prd = read_frc_from_xml_sandre(xml_files_prd)
+    if prd_files[0][-4:] == ".xml":
+        df_prd = read_frc_from_xml_sandre(prd_files)
+    elif prd_files[0][-4:] == ".prv":
+        if prv_datatype is None:
+            raise RuntimeError(
+                "'prv_datatype' doit être fourni quand les "
+                "fichiers de prédictions sont au format PRV"
+            )
+        df_prd = read_frc_from_prv(prd_files, datatype=prv_datatype)
+    else:
+        raise ValueError(
+            "les fichiers de prédictions doivent contenir "
+            "l'extension *.xml ou *.prv"
+        )
     arr_prd = convert_frc_df_to_arr(df_prd)
 
     # call evalhyd function
