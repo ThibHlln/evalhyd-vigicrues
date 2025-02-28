@@ -190,24 +190,26 @@ def evald(
     elif member_agg_method == 'median':
         arr_prd = np.median(arr_prd, axis=2)
 
-    # call evalhyd function (one leadtime at a time)
-    res_as_arr = None
-    for l, leadtime in df_prd.index.levels[1]:
-        res = evalhyd.evald(
-            q_obs[:, l, ...], arr_prd[:, l, ...], metrics, q_thr, events,
-            transform, exponent, epsilon, t_msk[:, l, ...], m_cdt,
-            # TODO: drop requirement for dts and use input dataframes instead
-            bootstrap, dts, seed,
-            diagnostics
+    # call evalhyd function (one site at a time)
+    res = list()
+    for s, site in enumerate(df_prd.index.levels[0]):
+        res.append(
+            evalhyd.evald(
+                q_obs[[s], ...], arr_prd[s, ...], metrics,
+                q_thr[[s], :].repeat(arr_prd.shape[1], 0), events,
+                transform, exponent, epsilon, t_msk[s, ...],
+                m_cdt[[s], ...].repeat(arr_prd.shape[1], 0),
+                # TODO: drop requirement for dts and use input dataframes instead
+                bootstrap, dts, seed,
+                diagnostics
+            )
         )
 
-        # stack arrays in leadtime order on new intermediate axis
-        if res_as_arr is not None:
-            res_as_arr = [
-                np.stack([r1, r2], axis=1) for r1, r2 in zip(res_as_arr, res)
-            ]
-        else:
-            res_as_arr = res
+    # stack arrays in site order on new leading axis
+    res_as_arr = [
+        np.stack(arrays, axis=0)
+        for arrays in zip(*res)
+    ]
 
     if return_format == 'arrays':
         # return arrays wrapped in a dictionary rather than a list
