@@ -219,7 +219,7 @@ def evald(
                     'échantillons':
                         np.arange(bootstrap['n_samples']) + 1
                         if bootstrap is not None
-                        else ['tout'],
+                        else ['aucun'],
                     'composantes':
                         dict(
                             KGE_D=['r_pearson', 'alpha', 'beta'],

@@ -218,7 +218,7 @@ def evalp(
                     'échantillons':
                         np.arange(bootstrap['n_samples']) + 1
                         if bootstrap is not None
-                        else ['tout'],
+                        else ['aucun'],
                     'seuils': [
                         f"{'≥' if events == 'high' else '≤'}{q}"
                         for q in q_thr[s]
