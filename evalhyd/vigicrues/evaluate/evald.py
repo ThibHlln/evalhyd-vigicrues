@@ -19,6 +19,7 @@ _levels = toml.load(
 def evald(
         q_obs: NDArray[dtype('float64')], prd_files: List[str],
         metrics: List[str], transform: str = None, exponent: float = None,
+        q_thr: np.ndarray = None, events: str = None,
         epsilon: float = None, t_msk: NDArray[dtype('bool')] = None,
         m_cdt: NDArray[dtype('|S32')] = None, bootstrap: Dict[str, int] = None,
         dts: NDArray[dtype('|S32')] = None, seed: int = None,
@@ -49,6 +50,24 @@ def evald(
         metrics: `List[str]`
             La liste d'indicateurs d'évaluation à calculer.
             dimensions : (indicateurs,)
+
+        q_thr: `numpy.ndarray` ``[dtype('float64')]``, optionnel
+            La matrice 2D contenant le(s) seuil(s) de débits à
+            considérer pour les indicateurs évaluant les prédictions
+            de dépassement de seuils. Si le nombre de seuils diffère
+            entre les entités, `numpy.nan` peut être utilisé comme seuil
+            pour les entités ayant moins de seuils que les autres.
+            dimensions : (entités, seuils)
+
+        events: `str`, optionnel
+            Le type de dépassement de seuil à considérer pour les
+            indicateurs basés sur des seuils de dépassement. Il peut
+            être défini soit comme `"high"` pour l'évaluation
+            d'événements de crues (c'est-à-dire quand le débit passe
+            au-dessus du seuil) soit comme `"low"` pour l'évaluation
+            d'événements d'étiages (c'est-à-dire quand le débit passe
+            en-dessous du seuil). Il doit être fourni si *q_thr* est
+            fourni.
 
         t_msk: `numpy.ndarray` ``[dtype('bool')]``, optionnel
             La matrice 4D contenant les masques permettant des générer
@@ -175,7 +194,7 @@ def evald(
     res_as_arr = None
     for l, leadtime in df_prd.index.levels[1]:
         res = evalhyd.evald(
-            q_obs[:, l, ...], arr_prd[:, l, ...], metrics,
+            q_obs[:, l, ...], arr_prd[:, l, ...], metrics, q_thr, events,
             transform, exponent, epsilon, t_msk[:, l, ...], m_cdt,
             # TODO: drop requirement for dts and use input dataframes instead
             bootstrap, dts, seed,
@@ -220,6 +239,10 @@ def evald(
                         np.arange(bootstrap['n_samples']) + 1
                         if bootstrap is not None
                         else ['aucun'],
+                    'seuils': [
+                        f"{'≥' if events == 'high' else '≤'}{q}"
+                        for q in q_thr[s]
+                    ],
                     'composantes':
                         dict(
                             KGE_D=['r_pearson', 'alpha', 'beta'],
