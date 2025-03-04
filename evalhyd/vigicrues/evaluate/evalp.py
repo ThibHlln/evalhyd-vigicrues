@@ -42,10 +42,10 @@ def evalp(
                import pandas as pd
 
                df_obs = pd.DataFrame(
-                   data=np.random.randint(100, 400, 3),
+                   data=np.random.randint(100, 400, 6),
                    index=pd.MultiIndex.from_product(
                        [['entité 1', 'entité 2', 'entité 3'],
-                        [pd.to_datetime('2001-08-07')]],
+                        [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')]],
                        names=['entités', 'date validité']
                    ),
                    columns=pd.Index(['valeur'])
@@ -72,9 +72,9 @@ def evalp(
                    data=np.random.randint(100, 400, 24),
                    index=pd.MultiIndex.from_product(
                        [['entité 1', 'entité 2', 'entité 3'],
-                        [pd.to_timedelta('1 day'), pd.to_timedelta('2 day')],
+                        [pd.to_timedelta('1 day')],
                         ['a', 'b', 'c', 'd'],
-                        [pd.to_datetime('2001-08-07')]],
+                        [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')]],
                        names=['entités', 'échéances', 'membres', 'date validité']
                    ),
                    columns=pd.Index(['valeur'])
@@ -207,7 +207,6 @@ def evalp(
     res_as_arr = evalhyd.evalp(
         arr_obs, arr_prd, metrics,
         q_thr, events, c_lvl, t_msk, m_cdt,
-        # TODO: drop requirement for dts and use input dataframes instead
         bootstrap, dts, seed,
         diagnostics
     )
