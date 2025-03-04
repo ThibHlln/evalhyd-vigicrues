@@ -5,8 +5,7 @@ import pandas as pd
 from typing import List, Dict
 import evalhyd
 
-from ..read import read_frc_from_xml_sandre, read_frc_from_prv
-from ._convert import convert_frc_df_to_arr
+from ._convert import convert_obs_df_to_arr, convert_prd_df_to_arr
 
 
 _levels = toml.load(
@@ -15,33 +14,71 @@ _levels = toml.load(
 
 
 def evalp(
-        q_obs: np.ndarray, prd_files: List[str], metrics: List[str],
+        df_obs: pd.DataFrame, df_prd: pd.DataFrame, metrics: List[str],
         q_thr: np.ndarray = None, events: str = None, c_lvl: np.ndarray = None,
         t_msk: np.ndarray = None, m_cdt: np.ndarray = None,
-        bootstrap: Dict[str, int] = None, dts: np.ndarray = None,
-        seed: int = None, diagnostics: List[str] = None,
-        prv_datatype: str = None, return_format: str = 'dataframes'
+        bootstrap: Dict[str, int] = None, seed: int = None,
+        diagnostics: List[str] = None,
+        return_format: str = 'dataframes'
 ) -> Dict[str, np.ndarray | pd.DataFrame]:
     """Fonction pour évaluer des predictions probabilistes de débits.
 
     :Paramètres:
 
-        q_obs: `numpy.ndarray` ``[dtype('float64')]``
-            La matrice 2D contenant les observations de débits. Les pas
-            de temps sans observations doivent être assignés des
-            valeurs `numpy.nan`. Ces pas de temps seront ignorés à la
-            fois dans les observations et les prédictions avant que les
-            indicateurs soient calculés.
+        df_obs: `pandas.DataFrame`
+            La dataframe contenant les observations de débits. Elle doit
+            posséder un multi-index en lignes avec quatre niveaux nommés
+            'entités' et 'date validité' (respectivement de types `str`
+            et `pd.Timestamp`) et une colonne nommée 'valeur' (de type
+            `float`) contenant des débits dans une unité identique à
+            celle de *df_prd* et *q_thr*.
             dimensions : (entités, temps)
 
-        prd_files: `List[str]`
-            La liste de fichiers au format XML-SANDRE (extension *.xml)
-            ou au format PRV (extension *.prv) contenant les prédictions
-            de débits. Le format de fichier est déterminé à partir de
-            l'extension du premier fichier dans la liste. Si les
-            fichiers sont au format PRV, le paramètre *prv_datatype*
-            doit être défini.
+            *Exemple de paramètre :*
+
+            .. code-block:: python
+
+               import numpy as np
+               import pandas as pd
+
+               df_obs = pd.DataFrame(
+                   data=np.random.randint(100, 400, 3),
+                   index=pd.MultiIndex.from_product(
+                       [['entité 1', 'entité 2', 'entité 3'],
+                        [pd.to_datetime('2001-08-07')]],
+                       names=['entités', 'date validité']
+                   ),
+                   columns=pd.Index(['valeur'], name='valeur')
+               )
+
+        df_prd: `pandas.DataFrame`
+            La dataframe contenant les prédictions de débits. Elle doit
+            posséder un multi-index pour les lignes avec quatre niveaux
+            nommés 'entités', 'échéances', 'membres' et 'date validité'
+            (respectivement de types `str`, `pd.Timedelta`, `str` et
+            `pd.Timestamp`) et une colonne nommée 'valeur' (de type
+            `float`) contenant des débits dans une unité identique à
+            celle de *df_obs* et *q_thr*.
             dimensions : (entités, échéances, membres, temps)
+
+            *Exemple de paramètre :*
+
+            .. code-block:: python
+
+               import numpy as np
+               import pandas as pd
+
+               df_prd = pd.DataFrame(
+                   data=np.random.randint(100, 400, 24),
+                   index=pd.MultiIndex.from_product(
+                       [['entité 1', 'entité 2', 'entité 3'],
+                        [pd.to_timedelta('1 day'), pd.to_timedelta('2 day')],
+                        ['a', 'b', 'c', 'd'],
+                        [pd.to_datetime('2001-08-07')]],
+                       names=['entités', 'échéances', 'membres', 'date validité']
+                   ),
+                   columns=pd.Index(['valeur'], name='valeur')
+               )
 
         metrics: `List[str]`
             La liste d'indicateurs d'évaluation à calculer.
@@ -106,24 +143,13 @@ def evalp(
              d'années et `"summary"` les statistiques à calculer pour
              caractériser la distribution d'échantillonnage. Si les
              valeurs ne sont pas fournies, aucun bootstrap n'est
-             effectué. Si les valeurs sont fournies, *dts* doit
-             également être fourni.
+             effectué.
 
              *Exemple de paramètre :*
 
             .. code-block:: python
 
                bootstrap={"n_samples": 100, "len_sample": 10, "summary": 0}
-
-        dts: `numpy.ndarray` ``[dtype('|S32')]``, optionnel
-            Le vecteur de dates et heures correspondant à la dimension
-            temporelle des observations et prédictions de débits. La
-            date et l'heure doit être spécifiée suivant la norme
-            ISO 8601-1:2019, c'est-à-dire "AAAA-MM-JJ hh:mm:ss" (par
-            exemple, le 21 mai 2007 à 4 heures de l'après-midi s'écrit
-            "2007-05-21 16:00:00"). Si le vecteur est fourni, il est
-            seulement considéré si *bootstrap* est aussi fourni.
-            dimensions : (temps,)
 
         seed: `int`, optionnel
             Un nombre entier pour la graine utilisée par le générateur
@@ -134,12 +160,6 @@ def evalp(
             La liste de variables de diagnostic de l'évaluation à
             calculer.
             dimensions : (variables,)
-
-        prv_datatype: `str`, optionnel
-            Le type du fichier de données PRV parmi ``'otamin16_fcst'``,
-            ``'otamin18_fcst'``, ``'scores_fcst'``. Ce paramètre est
-            obligatoire si la liste de fichiers fournie pour
-            *prd_files*, sinon ce paramètre ignoré.
 
         return_format: `str`, optionnel
             Le format désiré pour les indicateurs d'évaluation, soit
@@ -152,6 +172,13 @@ def evalp(
         `dict` de `pandas.DataFrame` ou de `numpy.ndarray`
             Les valeurs des indicateurs d'évaluation (et des variables
             de diagnostic d'évaluation le cas échéant).
+
+            .. note::
+
+               Pour les indicateurs avec dimensions tels que le CRPS ou
+               le QS, l'unité de l'indicateur est identique à l'unité
+               des données fournies à *df_obs*, *df_prd* et *q_thr*.
+
     """
     # check requested return format
     if return_format not in ('dataframes', 'arrays'):
@@ -159,26 +186,26 @@ def evalp(
             "'return_format' must be 'dataframes' or 'arrays'"
         )
 
-    # load prediction data
-    if prd_files[0][-4:] == ".xml":
-        df_prd = read_frc_from_xml_sandre(prd_files)
-    elif prd_files[0][-4:] == ".prv":
-        if prv_datatype is None:
-            raise RuntimeError(
-                "'prv_datatype' doit être fourni quand les "
-                "fichiers de prédictions sont au format PRV"
-            )
-        df_prd = read_frc_from_prv(prd_files, datatype=prv_datatype)
-    else:
+    # check coherence between temporal levels
+    if not (df_prd.index.levels[3] == df_obs.index.levels[1]).all():
         raise ValueError(
-            "les fichiers de prédictions doivent contenir "
-            "l'extension *.xml ou *.prv"
+            "dates de validité différentes entre les observations "
+            "et les prévisions de débits"
         )
-    arr_prd = convert_frc_df_to_arr(df_prd)
+    else:
+        dts = (
+            df_prd.index.levels[3].strftime('%Y-%m-%s %H:%M:%S').to_numpy()
+        )
+
+    # convert observation data
+    arr_obs = convert_obs_df_to_arr(df_prd)
+
+    # convert prediction data
+    arr_prd = convert_prd_df_to_arr(df_prd)
 
     # call evalhyd function
     res_as_arr = evalhyd.evalp(
-        q_obs, arr_prd, metrics,
+        arr_obs, arr_prd, metrics,
         q_thr, events, c_lvl, t_msk, m_cdt,
         # TODO: drop requirement for dts and use input dataframes instead
         bootstrap, dts, seed,

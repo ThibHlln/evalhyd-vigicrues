@@ -3,7 +3,7 @@ from typing import List
 from pyspc.io.prv import read_prv
 
 
-def read_frc_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
+def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
     """Lire les fichiers au format PRV contenant les prédictions
     de débits et retourner sous forme de `pandas.DataFrame`.
 
@@ -22,7 +22,7 @@ def read_frc_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
 
     Récupérer les prédictions de débits sous forme de dataframe :
 
-    >>> df = read_frc_from_prv(['data/GRP_B_20241211_1023_5304.prv'])
+    >>> df = read_prd_from_prv(['data/GRP_B_20241211_1023_5304.prv'])
     >>> df.xs('K0045510', level='entités', drop_level=False).xs('0001', level='membres', drop_level=False)
                                                             valeur
     entités  échéances       membres date validité

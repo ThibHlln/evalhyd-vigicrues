@@ -1,4 +1,4 @@
 
 
-from .xml import read_frc_from_xml_sandre
-from .prv import read_frc_from_prv
+from .xml import read_prd_from_xml_sandre
+from .prv import read_prd_from_prv

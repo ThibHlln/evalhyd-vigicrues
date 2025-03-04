@@ -2,7 +2,7 @@
 
 from .version import __version__
 
-from .read import read_frc_from_xml_sandre, read_frc_from_prv
+from .read import read_prd_from_xml_sandre, read_prd_from_prv
 from .evaluate import evald
 from .evaluate import evalp
 from .plot import plot_rank_hist

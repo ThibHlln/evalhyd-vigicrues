@@ -3,7 +3,7 @@ from typing import List
 from libhydro.conv.xml import xml_parser
 
 
-def read_frc_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
+def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
     """Lire les fichiers au format XML-SANDRE contenant les prédictions
     de débits et retourner sous forme de `pandas.DataFrame`.
 
@@ -22,7 +22,7 @@ def read_frc_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
 
     Récupérer les prédictions de débits sous forme de dataframe :
 
-    >>> df = read_frc_from_xml_sandre(['data/GRP_B_20241211_1023_5304.xml'])
+    >>> df = read_prd_from_xml_sandre(['data/GRP_B_20241211_1023_5304.xml'])
     >>> df.xs('K0045510', level='entités', drop_level=False).xs('0001', level='membres', drop_level=False)
                                                             valeur
     entités  échéances       membres date validité
