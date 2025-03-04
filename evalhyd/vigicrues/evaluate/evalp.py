@@ -48,7 +48,7 @@ def evalp(
                         [pd.to_datetime('2001-08-07')]],
                        names=['entités', 'date validité']
                    ),
-                   columns=pd.Index(['valeur'], name='valeur')
+                   columns=pd.Index(['valeur'])
                )
 
         df_prd: `pandas.DataFrame`
@@ -77,7 +77,7 @@ def evalp(
                         [pd.to_datetime('2001-08-07')]],
                        names=['entités', 'échéances', 'membres', 'date validité']
                    ),
-                   columns=pd.Index(['valeur'], name='valeur')
+                   columns=pd.Index(['valeur'])
                )
 
         metrics: `List[str]`
@@ -198,7 +198,7 @@ def evalp(
         )
 
     # convert observation data
-    arr_obs = convert_obs_df_to_arr(df_prd)
+    arr_obs = convert_obs_df_to_arr(df_obs)
 
     # convert prediction data
     arr_prd = convert_prd_df_to_arr(df_prd)
