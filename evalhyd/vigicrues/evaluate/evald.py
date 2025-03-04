@@ -7,7 +7,7 @@ from numpy import dtype
 from numpy.typing import NDArray
 import evalhyd
 
-from ._convert import convert_obs_df_to_arr, convert_prd_df_to_arr
+from ._convert import convert_prd_df_to_arr
 
 
 _levels = toml.load(
@@ -30,12 +30,11 @@ def evald(
 
         df_obs: `pandas.DataFrame`
             La dataframe contenant les observations de débits. Elle doit
-            posséder un multi-index en lignes avec quatre niveaux nommés
-            'entités' et 'date validité' (respectivement de types `str`
-            et `pd.Timestamp`) et une colonne nommée 'valeur' (de type
+            posséder un index nommé 'date validité' (de type
+            `pd.Timestamp`) et une colonne nommée 'valeur' (de type
             `float`) contenant des débits dans une unité identique à
             celle de *df_prd* et *q_thr*.
-            dimensions : (entités, temps)
+            dimensions : (temps,)
 
             *Exemple de paramètre :*
 
@@ -45,24 +44,22 @@ def evald(
                import pandas as pd
 
                df_obs = pd.DataFrame(
-                   data=np.random.randint(100, 400, 3),
-                   index=pd.MultiIndex.from_product(
-                       [['entité 1', 'entité 2', 'entité 3'],
-                        [pd.to_datetime('2001-08-07')]],
-                       names=['entités', 'date validité']
+                   data=np.random.randint(100, 400, 2),
+                   index=pd.Index(
+                       [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')],
+                       name='date validité'
                    ),
-                   columns=pd.Index(['valeur'], name='valeur')
+                   columns=pd.Index(['valeur'])
                )
 
         df_prd: `pandas.DataFrame`
             La dataframe contenant les prédictions de débits. Elle doit
-            posséder un multi-index pour les lignes avec quatre niveaux
-            nommés 'entités', 'échéances', 'membres' et 'date validité'
-            (respectivement de types `str`, `pd.Timedelta`, `str` et
-            `pd.Timestamp`) et une colonne nommée 'valeur' (de type
-            `float`) contenant des débits dans une unité identique à
-            celle de *df_obs* et *q_thr*.
-            dimensions : (entités, échéances, membres, temps)
+            posséder un multi-index pour les lignes avec deux niveaux
+            nommés 'échéances' et 'date validité' (respectivement de
+            types `str` et `pd.Timestamp`) et une colonne nommée
+            'valeur' (de type `float`) contenant des débits dans une
+            unité identique à celle de *df_obs* et *q_thr*.
+            dimensions : (échéances, temps)
 
             *Exemple de paramètre :*
 
@@ -72,15 +69,13 @@ def evald(
                import pandas as pd
 
                df_prd = pd.DataFrame(
-                   data=np.random.randint(100, 400, 24),
+                   data=np.random.randint(100, 400, 2),
                    index=pd.MultiIndex.from_product(
-                       [['entité 1', 'entité 2', 'entité 3'],
-                        [pd.to_timedelta('1 day'), pd.to_timedelta('2 day')],
-                        ['a', 'b', 'c', 'd'],
-                        [pd.to_datetime('2001-08-07')]],
-                       names=['entités', 'échéances', 'membres', 'date validité']
+                       [[pd.to_timedelta('1 day')],
+                        [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')]],
+                       names=['échéances', 'date validité']
                    ),
-                   columns=pd.Index(['valeur'], name='valeur')
+                   columns=pd.Index(['valeur'])
                )
 
         metrics: `List[str]`
@@ -88,12 +83,10 @@ def evald(
             dimensions : (indicateurs,)
 
         q_thr: `numpy.ndarray` ``[dtype('float64')]``, optionnel
-            La matrice 2D contenant le(s) seuil(s) de débits à
-            considérer pour les indicateurs évaluant les prédictions
-            de dépassement de seuils. Si le nombre de seuils diffère
-            entre les entités, `numpy.nan` peut être utilisé comme seuil
-            pour les entités ayant moins de seuils que les autres.
-            dimensions : (entités, seuils)
+            Le vecteur contenant le(s) seuil(s) de débits à considérer
+            pour les indicateurs évaluant les prédictions de dépassement
+            de seuils.
+            dimensions : (seuils,)
 
         events: `str`, optionnel
             Le type de dépassement de seuil à considérer pour les
@@ -106,7 +99,7 @@ def evald(
             fourni.
 
         t_msk: `numpy.ndarray` ``[dtype('bool')]``, optionnel
-            La matrice 4D contenant les masques permettant des générer
+            La matrice 2D contenant les masques permettant des générer
             des sous-ensembles des chroniques de débits (où `True`/
             `False` est utilisé pour inclure/exclure les pas de temps
             dans un sous-ensemble donné). Si la matrice n'est pas
@@ -115,10 +108,10 @@ def evald(
             correspondant à la période entière est généré. Si la
             matrice est fournie, autant de jeux d'indicateurs que de
             masques fournis sont générés.
-            dimensions : (entités, échéances, sous-ensembles, temps)
+            dimensions : (sous-ensembles, temps)
 
         m_cdt: `numpy.ndarray` ``[dtype('|S32')]``, optionnel
-            La matrice 2D contenant les conditions permettant de
+            Le vecteur contenant les conditions permettant de
             générer des sous-ensembles temporels. Chaque condition
             consiste en une chaîne de caractères et elle peut être
             spécifiée sur des valeurs débits observés ou prédits
@@ -130,7 +123,7 @@ def evald(
             d'indicateurs correspondant à la période entière est généré.
             Si la matrice est fournie seule, autant de jeux
             d'indicateurs que de conditions fournies sont générés.
-            dimensions : (entités, sous-ensembles)
+            dimensions : (sous-ensembles,)
 
         bootstrap: `dict`, optionnel
             Les valeurs des paramètres pour la méthode de bootstrap
@@ -188,48 +181,32 @@ def evald(
         raise ValueError("member_agg_method must be 'mean' or 'median'")
 
     # check coherence between temporal levels
-    if not (df_prd.index.levels[3] == df_obs.index.levels[1]).all():
+    if not (df_prd.index.levels[1] == df_obs.index).all():
         raise ValueError(
             "dates de validité différentes entre les observations "
             "et les prévisions de débits"
         )
     else:
         dts = (
-            df_prd.index.levels[3].strftime('%Y-%m-%s %H:%M:%S').to_numpy()
+            df_obs.index.strftime('%Y-%m-%s %H:%M:%S').to_numpy()
         )
 
     # convert observation data
-    arr_obs = convert_obs_df_to_arr(df_prd)
+    arr_obs = df_obs.to_numpy().T
 
     # convert prediction data
     arr_prd = convert_prd_df_to_arr(df_prd)
 
-    # apply aggregation to ensemble members
-    if member_agg_method == 'mean':
-        arr_prd = np.mean(arr_prd, axis=2)
-    elif member_agg_method == 'median':
-        arr_prd = np.median(arr_prd, axis=2)
-
     # call evalhyd function (one site at a time)
-    res = list()
-    for s, site in enumerate(df_prd.index.levels[0]):
-        res.append(
-            evalhyd.evald(
-                arr_obs[[s], ...], arr_prd[s, ...], metrics,
-                q_thr[[s], :].repeat(arr_prd.shape[1], 0), events,
-                transform, exponent, epsilon, t_msk[s, ...],
-                m_cdt[[s], ...].repeat(arr_prd.shape[1], 0),
-                # TODO: drop requirement for dts and use input dataframes instead
-                bootstrap, dts, seed,
-                diagnostics
-            )
-        )
-
-    # stack arrays in site order on new leading axis
-    res_as_arr = [
-        np.stack(arrays, axis=0)
-        for arrays in zip(*res)
-    ]
+    res_as_arr = evalhyd.evald(
+        arr_obs, arr_prd, metrics,
+        q_thr[np.newaxis, :].repeat(arr_prd.shape[0], 0),
+        events, transform, exponent, epsilon,
+        t_msk[np.newaxis, ...].repeat(arr_prd.shape[0], 0),
+        m_cdt[np.newaxis, :].repeat(arr_prd.shape[0], 0),
+        bootstrap, dts, seed,
+        diagnostics
+    )
 
     if return_format == 'arrays':
         # return arrays wrapped in a dictionary rather than a list
@@ -242,53 +219,42 @@ def evald(
         res_as_df = {}
 
         for i, indicator in enumerate(metrics + diagnostics):
+            # determine values to use for row multi-index levels
+            level_values = {
+                'échéances':
+                    df_prd.index.levels[0],
+                'sous-ensembles': (
+                    np.arange(t_msk.shape[0]) + 1 if t_msk is not None
+                    else m_cdt if m_cdt is not None
+                    else 1
+                ),
+                'échantillons':
+                    np.arange(bootstrap['n_samples']) + 1
+                    if bootstrap is not None
+                    else ['aucun'],
+                'seuils': [
+                    f"{'≥' if events == 'high' else '≤'}{q}"
+                    for q in q_thr
+                ],
+                'composantes':
+                    dict(
+                        KGE_D=['r_pearson', 'alpha', 'beta'],
+                        KGEPRIME_D=['r_pearson', 'gamma', 'beta'],
+                        KGENP_D=['r_spearman', 'alpha_np', 'beta'],
+                    ).get(indicator, None),
+                'cellules':
+                    ['a', 'b', 'c', 'd'],
+            }
 
-            df = None
-
-            for s, site in enumerate(df_prd.index.levels[0]):
-                # determine values to use for row multi-index levels
-                level_values = {
-                    'entités':
-                        [site],
-                    'échéances':
-                        df_prd.index.levels[1],
-                    'sous-ensembles': (
-                        np.arange(t_msk.shape[2]) + 1 if t_msk is not None
-                        else m_cdt[s] if m_cdt is not None
-                        else 1
-                    ),
-                    'échantillons':
-                        np.arange(bootstrap['n_samples']) + 1
-                        if bootstrap is not None
-                        else ['aucun'],
-                    'seuils': [
-                        f"{'≥' if events == 'high' else '≤'}{q}"
-                        for q in q_thr[s]
-                    ],
-                    'composantes':
-                        dict(
-                            KGE_D=['r_pearson', 'alpha', 'beta'],
-                            KGEPRIME_D=['r_pearson', 'gamma', 'beta'],
-                            KGENP_D=['r_spearman', 'alpha_np', 'beta'],
-                        ).get(indicator, None),
-                    'cellules':
-                        ['a', 'b', 'c', 'd'],
-                }
-
-                # wrap results array in multi-index dataframe
-                df = pd.concat(
-                    [
-                        df,
-                        pd.DataFrame(
-                            data=res_as_arr[i][s].flatten(),
-                            index=pd.MultiIndex.from_product(
-                                iterables=[level_values[lvl] for lvl in
-                                           _levels[indicator]],
-                                names=_levels[indicator]
-                            )
-                        )
-                    ]
+            # wrap results array in multi-index dataframe
+            df = pd.DataFrame(
+                data=res_as_arr[i].flatten(),
+                index=pd.MultiIndex.from_product(
+                    iterables=[level_values[lvl] for lvl in
+                               _levels[indicator]],
+                    names=_levels[indicator]
                 )
+            )
 
             res_as_df[indicator] = df
 

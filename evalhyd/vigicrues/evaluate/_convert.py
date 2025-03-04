@@ -3,10 +3,7 @@ import pandas as pd
 
 
 def convert_obs_df_to_arr(df: pd.DataFrame) -> np.ndarray:
-    # turn validity dates level of row multi-index into column
-    df = df.reset_index().set_index('entités')
-
-    # determine shape of array (sites, leadtimes, members, time)
+    # determine shape of array (sites, time)
     shape = tuple(map(len, df.index.levels))
 
     # map dataframe data into array
@@ -18,7 +15,7 @@ def convert_obs_df_to_arr(df: pd.DataFrame) -> np.ndarray:
 
 def convert_prd_df_to_arr(df: pd.DataFrame) -> np.ndarray:
     # turn validity dates level of row multi-index into column
-    df = df.reset_index().set_index(['entités', 'échéances', 'membres'])
+    df = df.reset_index().set_index(df.index.names[:-1])
 
     # use validity dates as column index
     df = df.pivot(columns='date validité', values='valeur')
