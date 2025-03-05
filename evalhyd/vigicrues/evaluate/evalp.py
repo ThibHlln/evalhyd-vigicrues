@@ -19,7 +19,7 @@ def evalp(
         t_msk: np.ndarray = None, m_cdt: np.ndarray = None,
         bootstrap: Dict[str, int] = None, seed: int = None,
         diagnostics: List[str] = None,
-        return_format: str = 'dataframes'
+        return_format: str = 'dataframe'
 ) -> Dict[str, np.ndarray | pd.DataFrame]:
     """Fonction pour évaluer des predictions probabilistes de débits.
 
@@ -163,8 +163,8 @@ def evalp(
 
         return_format: `str`, optionnel
             Le format désiré pour les indicateurs d'évaluation, soit
-            ``'dataframes'`` pour obtenir des `pandas.DataFrame` ou
-            ``'arrays'`` pour obtenir des `numpy.ndarray`. Si le format
+            ``'dataframe'`` pour obtenir des `pandas.DataFrame` ou
+            ``'array'`` pour obtenir des `numpy.ndarray`. Si le format
             n'est pas fourni, des dataframes sont retournées.
 
     :Retourne:
@@ -181,9 +181,9 @@ def evalp(
 
     """
     # check requested return format
-    if return_format not in ('dataframes', 'arrays'):
+    if return_format not in ('dataframe', 'array'):
         raise ValueError(
-            "'return_format' must be 'dataframes' or 'arrays'"
+            "'return_format' must be 'dataframe' or 'array'"
         )
 
     # check coherence between temporal levels
@@ -211,13 +211,13 @@ def evalp(
         diagnostics
     )
 
-    if return_format == 'arrays':
+    if return_format == 'array':
         # return arrays wrapped in a dictionary rather than a list
         return {
             indicator: res_as_arr[i]
             for i, indicator in enumerate(metrics + diagnostics)
         }
-    else:  # 'dataframes'
+    else:  # 'dataframe'
 
         res_as_df = {}
 
