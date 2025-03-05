@@ -22,7 +22,7 @@ def evald(
         epsilon: float = None, t_msk: NDArray[dtype('bool')] = None,
         m_cdt: NDArray[dtype('|S32')] = None, bootstrap: Dict[str, int] = None,
         seed: int = None, diagnostics: List[str] = None,
-        member_agg_method: str = 'mean', return_format: str = 'dataframe'
+        return_format: str = 'dataframe'
 ) -> Dict[str, np.ndarray | pd.DataFrame]:
     """Fonction pour évaluer des predictions déterministes de débits.
 
@@ -152,13 +152,6 @@ def evald(
             calculer.
             dimensions : (variables,)
 
-        member_agg_method: `str`, optionnel
-            La méthode d'agrégation à utiliser pour réduire les membres
-            de l'ensemble à une valeur unique afin de pouvoir appliquer
-            les indicateurs déterministes. Les possibilités sont la
-            moyenne ``'mean'`` ou médiane ``'median'``. Si la méthode
-            n'est pas fournie, la moyenne des membres sera utilisée.
-
         return_format: `str`, optionnel
             Le format désiré pour les indicateurs d'évaluation, soit
             ``'dataframe'`` pour obtenir des `pandas.DataFrame` ou
@@ -175,10 +168,6 @@ def evald(
     # check requested return format
     if return_format not in ('dataframe', 'array'):
         raise ValueError("return_format must be 'dataframe' or 'array'")
-
-    # check aggregation method for ensemble members
-    if member_agg_method not in ('mean', 'median'):
-        raise ValueError("member_agg_method must be 'mean' or 'median'")
 
     # check coherence between temporal levels
     if not (df_prd.index.levels[1] == df_obs.index).all():
