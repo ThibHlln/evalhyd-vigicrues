@@ -28,7 +28,7 @@ def evalp(
         df_obs: `pandas.DataFrame`
             La dataframe contenant les observations de débits. Elle doit
             posséder un multi-index en lignes avec quatre niveaux nommés
-            'entités' et 'date validité' (respectivement de types `str`
+            'entites' et 'dates_validite' (respectivement de types `str`
             et `pd.Timestamp`) et une colonne nommée 'valeur' (de type
             `float`) contenant des débits dans une unité identique à
             celle de *df_prd* et *q_thr*.
@@ -46,7 +46,7 @@ def evalp(
                    index=pd.MultiIndex.from_product(
                        [['entité 1', 'entité 2', 'entité 3'],
                         [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')]],
-                       names=['entités', 'date validité']
+                       names=['entites', 'dates_validite']
                    ),
                    columns=pd.Index(['valeur'])
                )
@@ -54,8 +54,8 @@ def evalp(
         df_prd: `pandas.DataFrame`
             La dataframe contenant les prédictions de débits. Elle doit
             posséder un multi-index pour les lignes avec quatre niveaux
-            nommés 'entités', 'échéances', 'membres'/'tendances' et
-            'date validité' (respectivement de types `str`,
+            nommés 'entites', 'echeances', 'membres'/'tendances' et
+            'dates_validite' (respectivement de types `str`,
             `pd.Timedelta`, `str` et `pd.Timestamp`) et une colonne
             nommée 'valeur' (de type `float`) contenant des débits dans
             une unité identique à celle de *df_obs* et *q_thr*.
@@ -75,7 +75,7 @@ def evalp(
                         [pd.to_timedelta('1 day')],
                         ['a', 'b', 'c', 'd'],
                         [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')]],
-                       names=['entités', 'échéances', 'membres', 'date validité']
+                       names=['entites', 'echeances', 'membres', 'dates_validite']
                    ),
                    columns=pd.Index(['valeur'])
                )
@@ -230,18 +230,18 @@ def evalp(
             for s, site in enumerate(df_prd.index.levels[0]):
                 # determine values to use for row multi-index levels
                 level_values = {
-                    'entités':
+                    'entites':
                         [site],
-                    'toutes entités':
+                    'toutes_entites':
                         ['toutes'],
-                    'échéances':
+                    'echeances':
                         df_prd.index.levels[1],
-                    'sous-ensembles': (
+                    'sous_ensembles': (
                         np.arange(t_msk.shape[2]) + 1 if t_msk is not None
                         else m_cdt[s] if m_cdt is not None
                         else 1
                     ),
-                    'échantillons':
+                    'echantillons':
                         np.arange(bootstrap['n_samples']) + 1
                         if bootstrap is not None
                         else ['aucun'],
@@ -292,10 +292,10 @@ def evalp(
                 )
 
                 # special case for multi-sites metrics
-                if 'toutes entités' in _levels[indicator]:
+                if 'toutes_entites' in _levels[indicator]:
                     # rename index level name
                     df.index = df.index.set_names(
-                        'entités', level='toutes entités'
+                        'entites', level='toutes_entites'
                     )
                     # leave sites loop as there is only one item
                     # for multi-sites metrics

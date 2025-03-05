@@ -97,7 +97,7 @@ def plot_rank_hist(
     """
     # check levels of multi-index
     if rank_hist.index.names != [
-            'entités', 'échéances', 'sous-ensembles', 'échantillons', 'rangs'
+            'entites', 'echeances', 'sous_ensembles', 'echantillons', 'rangs'
     ]:
         raise RuntimeError(
             "'rank_hist' ne semble pas être une "
@@ -107,14 +107,14 @@ def plot_rank_hist(
     # check validity of the X,Y axes
     lvl_axes = (row if row else None, col if col else None)
     for axis in (row, col):
-        if axis not in ('entités', 'échéances', 'sous-ensembles', None):
+        if axis not in ('entites', 'echeances', 'sous_ensembles', None):
             raise ValueError(
-                "les axes x et y ne peuvent être que 'entités' ou "
-                "ou 'échéances' ou 'sous-ensembles'"
+                "les axes x et y ne peuvent être que 'entites' ou "
+                "ou 'echeances' ou 'sous_ensembles'"
             )
 
     lvl_left = (
-        {'entités', 'échéances', 'sous-ensembles'}.difference(lvl_axes)
+        {'entites', 'echeances', 'sous_ensembles'}.difference(lvl_axes)
     )
 
     # retrieve multi-index level values

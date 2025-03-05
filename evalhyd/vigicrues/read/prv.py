@@ -29,9 +29,9 @@ def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
     Récupérer les prédictions de débits sous forme de dataframe :
 
     >>> df = read_prd_from_prv(['data/GRP_B_20241211_1023_5304.prv'], datatype='ensemble')
-    >>> df.xs('K0045510', level='entités', drop_level=False).xs('0001', level='membres', drop_level=False)
+    >>> df.xs('K0045510', level='entites', drop_level=False).xs('0001', level='membres', drop_level=False)
                                                             valeur
-    entités  échéances       membres date validité
+    entites  echeances       membres dates_validite
     K0045510 0 days 01:00:00 0001    2024-12-11 11:00:00   0.558
              0 days 02:00:00 0001    2024-12-11 12:00:00   0.553
              0 days 03:00:00 0001    2024-12-11 13:00:00   0.547
@@ -85,13 +85,13 @@ def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
         # rename indexes corresponding to `evalhyd` dimensions
         df0.columns = df0.columns.rename(
             {
-                'Stations': 'entités',
+                'Stations': 'entites',
                 'Tendances': 'tendances',
                 'Scenarios': 'membres',
-                'DtDerObs': 'date émission',
+                'DtDerObs': 'dates_emission',
             }
         )
-        df0.index.name = 'date validité'
+        df0.index.name = 'dates_validite'
 
         # move column multi-index levels to row multi-index levels
         df0 = df0.stack(
@@ -101,31 +101,31 @@ def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
         # parse issue dates to timestamp
         df0.index = df0.index.set_levels(
             pd.to_datetime(
-                df0.index.levels[df0.index.names.index('date émission')],
+                df0.index.levels[df0.index.names.index('dates_emission')],
                 format='%d-%m-%Y %H:%M'
             ),
-            level='date émission'
+            level='dates_emission'
         )
 
         # compute leadtimes from validity dates and issue dates
-        df0.loc[:, 'échéances'] = (
-            df0.index.get_level_values('date validité')
-            - df0.index.get_level_values('date émission')
+        df0.loc[:, 'echeances'] = (
+            df0.index.get_level_values('dates_validite')
+            - df0.index.get_level_values('dates_emission')
         )
 
         # introduce new level in row multi-index for leadtimes
-        df0 = df0.set_index('échéances', append=True)
+        df0 = df0.set_index('echeances', append=True)
 
         # drop issue dates level from row multi-index
-        df0 = df0.droplevel('date émission', axis=0)
+        df0 = df0.droplevel('dates_emission', axis=0)
 
         # reorder levels in row multi-index to match evalhyd convention
         df0.index = df0.index.reorder_levels(
             [
-                'entités',
-                'échéances',
+                'entites',
+                'echeances',
                 'membres' if datatype == 'ensemble' else 'tendances',
-                'date validité'
+                'dates_validite'
             ]
         )
 

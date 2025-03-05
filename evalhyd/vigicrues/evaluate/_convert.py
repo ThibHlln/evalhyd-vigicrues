@@ -18,10 +18,10 @@ def convert_prd_df_to_arr(df: pd.DataFrame) -> np.ndarray:
     df = df.reset_index().set_index(df.index.names[:-1])
 
     # use validity dates as column index
-    df = df.pivot(columns='date validité', values='valeur')
+    df = df.pivot(columns='dates_validite', values='valeur')
 
     # append column index as additional level in row index
-    df = df.stack(level='date validité', future_stack=True)
+    df = df.stack(level='dates_validite', future_stack=True)
 
     # determine shape of array (sites, leadtimes, members, time)
     shape = tuple(map(len, df.index.levels))

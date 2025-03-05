@@ -30,7 +30,7 @@ def evald(
 
         df_obs: `pandas.DataFrame`
             La dataframe contenant les observations de débits. Elle doit
-            posséder un index nommé 'date validité' (de type
+            posséder un index nommé 'dates_validite' (de type
             `pd.Timestamp`) et une colonne nommée 'valeur' (de type
             `float`) contenant des débits dans une unité identique à
             celle de *df_prd* et *q_thr*.
@@ -47,7 +47,7 @@ def evald(
                    data=np.random.randint(100, 400, 2),
                    index=pd.Index(
                        [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')],
-                       name='date validité'
+                       name='dates_validite'
                    ),
                    columns=pd.Index(['valeur'])
                )
@@ -55,7 +55,7 @@ def evald(
         df_prd: `pandas.DataFrame`
             La dataframe contenant les prédictions de débits. Elle doit
             posséder un multi-index pour les lignes avec deux niveaux
-            nommés 'échéances' et 'date validité' (respectivement de
+            nommés 'echeances' et 'dates_validite' (respectivement de
             types `str` et `pd.Timestamp`) et une colonne nommée
             'valeur' (de type `float`) contenant des débits dans une
             unité identique à celle de *df_obs* et *q_thr*.
@@ -73,7 +73,7 @@ def evald(
                    index=pd.MultiIndex.from_product(
                        [[pd.to_timedelta('1 day')],
                         [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')]],
-                       names=['échéances', 'date validité']
+                       names=['echeances', 'dates_validite']
                    ),
                    columns=pd.Index(['valeur'])
                )
@@ -210,14 +210,14 @@ def evald(
         for i, indicator in enumerate(metrics + diagnostics):
             # determine values to use for row multi-index levels
             level_values = {
-                'échéances':
+                'echeances':
                     df_prd.index.levels[0],
-                'sous-ensembles': (
+                'sous_ensembles': (
                     np.arange(t_msk.shape[0]) + 1 if t_msk is not None
                     else m_cdt if m_cdt is not None
                     else 1
                 ),
-                'échantillons':
+                'echantillons':
                     np.arange(bootstrap['n_samples']) + 1
                     if bootstrap is not None
                     else ['aucun'],

@@ -23,9 +23,9 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
     Récupérer les prédictions de débits sous forme de dataframe :
 
     >>> df = read_prd_from_xml_sandre(['data/GRP_B_20241211_1023_5304.xml'])
-    >>> df.xs('K0045510', level='entités', drop_level=False).xs('0001', level='membres', drop_level=False)
+    >>> df.xs('K0045510', level='entites', drop_level=False).xs('0001', level='membres', drop_level=False)
                                                             valeur
-    entités  échéances       membres date validité
+    entites  echeances       membres dates_validite
     K0045510 0 days 01:00:00 0001    2024-12-11 11:00:00 558.00000
              0 days 02:00:00 0001    2024-12-11 12:00:00 553.00000
              0 days 03:00:00 0001    2024-12-11 13:00:00 547.00000
@@ -58,7 +58,7 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
                 df0.index = df0.index.rename(
                     {
                         'lb': 'membres',
-                        'dte': 'date validité'
+                        'dte': 'dates_validite'
                     }
                 )
             elif sim.previsions_tend is not None:
@@ -69,7 +69,7 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
                 df0.index = df0.index.rename(
                     {
                         'tend': 'tendances',
-                        'dte': 'date validité'
+                        'dte': 'dates_validite'
                     }
                 )
             else:
@@ -88,24 +88,24 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
             df0 = df0.rename(columns={'res': 'valeur'})
 
             # create new column with validity dates
-            df0.loc[:, 'échéances'] = (
-                    df0.index.get_level_values('date validité') - issue_date
+            df0.loc[:, 'echeances'] = (
+                    df0.index.get_level_values('dates_validite') - issue_date
             )
 
             # append column as additional level in row multi-index
-            df0 = df0.set_index('échéances', append=True)
+            df0 = df0.set_index('echeances', append=True)
 
             # prepend level to row multi-index for sites
-            df0 = pd.concat({sim.entite.code: df0}, names=['entités'])
+            df0 = pd.concat({sim.entite.code: df0}, names=['entites'])
 
             # reorder levels in row multi-index to match evalhyd convention
             df0.index = df0.index.reorder_levels(
                 [
-                    'entités',
-                    'échéances',
+                    'entites',
+                    'echeances',
                     'membres' if sim.prevs_ensemble is not None
                     else 'tendances',
-                    'date validité'
+                    'dates_validite'
                 ]
             )
 
