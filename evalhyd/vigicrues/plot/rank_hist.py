@@ -126,7 +126,7 @@ def plot_rank_hist(
     level_values[None] = [slice(None)]
 
     # check that RANK_HIST was not computed with bootstrapping
-    if len(level_values['échantillons']) > 1:
+    if len(level_values['echantillons']) > 1:
         raise ValueError(
             "visualisation non autorisée pour des résultats issus "
             "d'un échantillonnage par bootstrap"
@@ -134,15 +134,15 @@ def plot_rank_hist(
 
     # determine values of potential levels to loop through
     sites = (
-        level_values['entités'] if 'entités' in lvl_left
+        level_values['entites'] if 'entites' in lvl_left
         else [slice(None)]
     )
     leadtimes = (
-        level_values['échéances'] if 'échéances' in lvl_left
+        level_values['echeances'] if 'echeances' in lvl_left
         else [slice(None)]
     )
     subsets = (
-        level_values['sous-ensembles'] if 'sous-ensembles' in lvl_left
+        level_values['sous_ensembles'] if 'sous_ensembles' in lvl_left
         else [slice(None)]
     )
 
@@ -202,12 +202,12 @@ def plot_rank_hist(
                         if row and c == 0:
                             ax.set_ylabel(
                                 f"+{_format_timedelta(row_)}"
-                                if row == 'échéances' else row_
+                                if row == 'echeances' else row_
                             )
                         if col and r == len(rows) - 1:
                             ax.set_xlabel(
                                 f"+{_format_timedelta(col_)}"
-                                if col == 'échéances' else col_
+                                if col == 'echeances' else col_
                             )
 
                         ax.set_xticks([])
@@ -221,7 +221,7 @@ def plot_rank_hist(
                 # save figure with custom file name
                 formatted_leadtime = (
                     _format_timedelta(leadtime) if leadtime != slice(None)
-                    else 'toutes-échéances'
+                    else 'toutes-echeances'
                 )
 
                 kwargs = dict(
@@ -232,7 +232,7 @@ def plot_rank_hist(
 
                 # save figure with custom file name
                 filename = (
-                    f"{site if site != slice(None) else 'toutes-entités'}"
+                    f"{site if site != slice(None) else 'toutes-entites'}"
                     f"+{formatted_leadtime}"
                     f"+{s if subset != slice(None) else 'tous-sous-ensembles'}"
                 )
@@ -252,7 +252,3 @@ def plot_rank_hist(
                 plt.close(fig)
 
     return filepaths
-
-
-def plot_rel_diag(rel_diag):
-    ...
