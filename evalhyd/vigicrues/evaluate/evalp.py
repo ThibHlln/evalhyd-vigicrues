@@ -54,12 +54,12 @@ def evalp(
         df_prd: `pandas.DataFrame`
             La dataframe contenant les prédictions de débits. Elle doit
             posséder un multi-index pour les lignes avec quatre niveaux
-            nommés 'entités', 'échéances', 'membres' et 'date validité'
-            (respectivement de types `str`, `pd.Timedelta`, `str` et
-            `pd.Timestamp`) et une colonne nommée 'valeur' (de type
-            `float`) contenant des débits dans une unité identique à
-            celle de *df_obs* et *q_thr*.
-            dimensions : (entités, échéances, membres, temps)
+            nommés 'entités', 'échéances', 'membres'/'tendances' et
+            'date validité' (respectivement de types `str`,
+            `pd.Timedelta`, `str` et `pd.Timestamp`) et une colonne
+            nommée 'valeur' (de type `float`) contenant des débits dans
+            une unité identique à celle de *df_obs* et *q_thr*.
+            dimensions : (entités, échéances, membres/tendances, temps)
 
             *Exemple de paramètre :*
 

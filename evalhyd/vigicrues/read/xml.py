@@ -68,7 +68,7 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
                 # rename multi-index levels
                 df0.index = df0.index.rename(
                     {
-                        'tend': 'membres',
+                        'tend': 'tendances',
                         'dte': 'date validité'
                     }
                 )
@@ -87,14 +87,6 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
             # rename result column
             df0 = df0.rename(columns={'res': 'valeur'})
 
-            # rename multi-index levels
-            df0.index = df0.index.rename(
-                {
-                    'lb': 'membres',
-                    'dte': 'date validité'
-                }
-            )
-
             # create new column with validity dates
             df0.loc[:, 'échéances'] = (
                     df0.index.get_level_values('date validité') - issue_date
@@ -108,7 +100,13 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
 
             # reorder levels in row multi-index to match evalhyd convention
             df0.index = df0.index.reorder_levels(
-                ['entités', 'échéances', 'membres', 'date validité']
+                [
+                    'entités',
+                    'échéances',
+                    'membres' if sim.prevs_ensemble is not None
+                    else 'tendances',
+                    'date validité'
+                ]
             )
 
             # concatenate with other sites

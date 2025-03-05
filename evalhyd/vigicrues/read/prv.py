@@ -86,7 +86,7 @@ def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
         df0.columns = df0.columns.rename(
             {
                 'Stations': 'entités',
-                'Tendances': 'membres',
+                'Tendances': 'tendances',
                 'Scenarios': 'membres',
                 'DtDerObs': 'date émission',
             }
@@ -121,7 +121,12 @@ def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
 
         # reorder levels in row multi-index to match evalhyd convention
         df0.index = df0.index.reorder_levels(
-            ['entités', 'échéances', 'membres', 'date validité']
+            [
+                'entités',
+                'échéances',
+                'membres' if datatype == 'ensemble' else 'tendances',
+                'date validité'
+            ]
         )
 
         # sort index to guarantee later conversion to array is safe
