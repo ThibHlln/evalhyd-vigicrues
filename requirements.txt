@@ -4,4 +4,3 @@ matplotlib
 toml
 evalhyd-python>=0.1.2,<2.0
 libhydro>=0.9.5,<1.0
-pyspc>=3.0.4,<4.0
