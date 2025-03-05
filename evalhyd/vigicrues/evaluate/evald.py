@@ -22,7 +22,7 @@ def evald(
         epsilon: float = None, t_msk: NDArray[dtype('bool')] = None,
         m_cdt: NDArray[dtype('|S32')] = None, bootstrap: Dict[str, int] = None,
         seed: int = None, diagnostics: List[str] = None,
-        member_agg_method: str = 'mean', return_format: str = 'dataframes'
+        member_agg_method: str = 'mean', return_format: str = 'dataframe'
 ) -> Dict[str, np.ndarray | pd.DataFrame]:
     """Fonction pour évaluer des predictions déterministes de débits.
 
@@ -161,8 +161,8 @@ def evald(
 
         return_format: `str`, optionnel
             Le format désiré pour les indicateurs d'évaluation, soit
-            ``'dataframes'`` pour obtenir des `pandas.DataFrame` ou
-            ``'arrays'`` pour obtenir des `numpy.ndarray`. Si le format
+            ``'dataframe'`` pour obtenir des `pandas.DataFrame` ou
+            ``'array'`` pour obtenir des `numpy.ndarray`. Si le format
             n'est pas fourni, des dataframes sont retournées.
 
     :Retourne:
@@ -173,8 +173,8 @@ def evald(
 
     """
     # check requested return format
-    if return_format not in ('dataframes', 'arrays'):
-        raise ValueError("return_format must be 'dataframes' or 'arrays'")
+    if return_format not in ('dataframe', 'array'):
+        raise ValueError("return_format must be 'dataframe' or 'array'")
 
     # check aggregation method for ensemble members
     if member_agg_method not in ('mean', 'median'):
@@ -208,13 +208,13 @@ def evald(
         diagnostics
     )
 
-    if return_format == 'arrays':
+    if return_format == 'array':
         # return arrays wrapped in a dictionary rather than a list
         return {
             indicator: res_as_arr[i]
             for i, indicator in enumerate(metrics + diagnostics)
         }
-    else:  # 'dataframes'
+    else:  # 'dataframe'
 
         res_as_df = {}
 
