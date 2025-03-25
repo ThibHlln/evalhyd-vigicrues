@@ -6,19 +6,7 @@ import numpy as np
 import pandas as pd
 from typing import Tuple, List
 
-
-def _format_timedelta(timedelta: pd.Timedelta) -> str:
-    components = {
-        'days': 'j', 'hours': 'h', 'minutes': 'min',
-        'seconds': 's', 'milliseconds': 'ms',
-        'microseconds': 'us', 'nanoseconds': 'ns'
-    }
-
-    return "".join(
-        f"{getattr(timedelta.components, c)}{components[c]}"
-        for c in components.keys()
-        if getattr(timedelta.components, c) != 0
-    )
+from ._utils import format_timedelta
 
 
 def plot_rank_hist(
@@ -182,7 +170,7 @@ def plot_rank_hist(
                 # plot histograms on separate axes
                 for r, row_ in enumerate(rows):
                     for c, col_ in enumerate(cols):
-                        # further slide dataframe to focus on content
+                        # further slice dataframe to focus on content
                         # in a single axis
                         df_ = df
                         if row:
@@ -201,12 +189,12 @@ def plot_rank_hist(
 
                         if row and c == 0:
                             ax.set_ylabel(
-                                f"+{_format_timedelta(row_)}"
+                                f"+{format_timedelta(row_)}"
                                 if row == 'echeances' else row_
                             )
                         if col and r == len(rows) - 1:
                             ax.set_xlabel(
-                                f"+{_format_timedelta(col_)}"
+                                f"+{format_timedelta(col_)}"
                                 if col == 'echeances' else col_
                             )
 
@@ -220,7 +208,7 @@ def plot_rank_hist(
 
                 # save figure with custom file name
                 formatted_leadtime = (
-                    _format_timedelta(leadtime) if leadtime != slice(None)
+                    format_timedelta(leadtime) if leadtime != slice(None)
                     else 'toutes-echeances'
                 )
 
