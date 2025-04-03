@@ -115,3 +115,78 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
         df2 = pd.concat([df2, df1])
 
     return df2
+
+
+def read_obs_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
+    """Lire les fichiers au format XML-SANDRE contenant les observations
+    de débits et retourner sous forme de `pandas.DataFrame`.
+
+    :Paramètres:
+
+        xml_files: `list`
+            La liste de fichiers au format XML-SANDRE contenant les
+            observations de débits.
+
+    :Retourne:
+
+        `pandas.DataFrame`
+            La structure de données contenant les observations de débits.
+
+    **Exemples**
+
+    Récupérer les observations de débits sous forme de dataframe :
+
+    >>> df = read_obs_from_xml_sandre(['data/export_hydro_series.xml'])
+    >>> df
+                                 valeur
+    entites    dates_validite
+    H5201010   2010-01-01      165549.0
+               2010-01-02      183860.0
+               2010-01-03      186781.0
+               2010-01-04      165038.0
+               2010-01-05      130174.0
+    ...                             ...
+    H507101002 2019-12-28      111972.0
+               2019-12-29      112633.0
+               2019-12-30       97809.0
+               2019-12-31       92378.0
+               2020-01-01       72622.0
+
+    [18039 rows x 1 columns]
+    """
+    # loop through XML files
+    df2 = None
+
+    for xml_file in xml_files:
+        # read in XML Sandre file with `libhydro`
+        d = xml_parser.parse_xml_file(xml_file)
+
+        df1 = None
+
+        for obs in d['seriesobselab']:
+            # extract observations dataframe
+            if obs.observations is not None:
+                df0 = obs.observations
+            else:
+                raise RuntimeError(
+                    f"Le fichier {xml_file} ne contient pas d'observations"
+                )
+
+            # rename multi-index levels
+            df0.index.name = 'dates_validite'
+
+            # select result column (drop other columns)
+            df0 = df0.loc[:, ['res']]
+
+            # rename result column
+            df0 = df0.rename(columns={'res': 'valeur'})
+
+            # prepend level to row multi-index for sites
+            df0 = pd.concat({obs.entite.code: df0}, names=['entites'])
+
+            # concatenate with other sites
+            df1 = pd.concat([df1, df0])
+
+        df2 = pd.concat([df2, df1])
+
+    return df2
