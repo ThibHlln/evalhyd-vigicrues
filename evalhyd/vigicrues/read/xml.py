@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import List
-from libhydro.conv.xml import xml_parser
+from libhydro.conv.xml import Message
 
 
 def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
@@ -44,11 +44,17 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
 
     for xml_file in xml_files:
         # read in XML Sandre file with `libhydro`
-        d = xml_parser.parse_xml_file(xml_file)
+        d = Message.from_file(xml_file)
+
+        if not d.simulations:
+            raise RuntimeError(
+                f"Le fichier {xml_file} ne contient "
+                f"pas de series de simulations"
+            )
 
         df1 = None
 
-        for sim in d['simulations']:
+        for sim in d.simulations:
             # extract predictions dataframe
             if sim.prevs_ensemble is not None:
                 # extract ensemble predictions
@@ -159,11 +165,17 @@ def read_obs_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
 
     for xml_file in xml_files:
         # read in XML Sandre file with `libhydro`
-        d = xml_parser.parse_xml_file(xml_file)
+        d = Message.from_file(xml_file)
+
+        if not d.seriesobselab:
+            raise RuntimeError(
+                f"Le fichier {xml_file} ne contient "
+                f"pas de series d'observations"
+            )
 
         df1 = None
 
-        for obs in d['seriesobselab']:
+        for obs in d.seriesobselab:
             # extract observations dataframe
             if obs.observations is not None:
                 df0 = obs.observations
