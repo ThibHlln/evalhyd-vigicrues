@@ -3,7 +3,7 @@ import io
 from typing import List
 
 
-def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
+def read_prd_from_prv(prv_files: List[str]) -> pd.DataFrame:
     """Lire les fichiers au format PRV contenant les prédictions
     de débits et retourner sous forme de `pandas.DataFrame`.
 
@@ -12,12 +12,6 @@ def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
         prv_files: `list`
             La liste de fichiers au format PRV contenant les prédictions
             de débits.
-
-        datatype: `str`
-            Le type de données fournies. Il peut être défini soit
-            comme ``'ensemble'`` (quand les fichiers PRV contiennent
-            des scénarios) ou ``'tendance'`` (quand les fichiers PRV
-            contiennent des tendances).
 
     :Retourne:
 
@@ -28,9 +22,9 @@ def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
 
     Récupérer les prédictions de débits sous forme de dataframe :
 
-    >>> df = read_prd_from_prv(['data/GRP_B_20241211_1023_5304.prv'], datatype='ensemble')
+    >>> df = read_prd_from_prv(['data/GRP_B_20241211_1023_5304.prv'])
     >>> df.xs('K0045510', level='entites', drop_level=False).xs('0001', level='membres', drop_level=False)
-                                                            valeur
+                                                          valeur
     entites  echeances       membres dates_validite
     K0045510 0 days 01:00:00 0001    2024-12-11 11:00:00   0.558
              0 days 02:00:00 0001    2024-12-11 12:00:00   0.553
@@ -45,12 +39,6 @@ def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
              5 days 00:00:00 0001    2024-12-16 10:00:00   0.852
     [120 rows x 1 columns]
     """
-    # check declared datatype
-    if datatype not in ('ensemble', 'tendance'):
-        raise ValueError(
-            "'datatype' doit être 'ensemble' ou 'tendance'"
-        )
-
     df1 = None
 
     for prv_file in prv_files:
@@ -59,12 +47,17 @@ def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
             txt = f.read()
 
             # uncomment relevant lines for creation of dataframe multi-index
-            if datatype == 'ensemble':
+            if '# Scenarios;' in txt:
                 txt = txt.replace('# Scenarios;', 'Scenarios;')
-                txt = txt.replace('# DtDerObs;', 'DtDerObs;')
-            elif datatype == 'tendance':
+            elif '# Tendances;' in txt:
                 txt = txt.replace('# Tendances;', 'Tendances;')
-                txt = txt.replace('# DtDerObs;', 'DtDerObs;')
+            else:
+                raise RuntimeError(
+                    f"Le fichier {prv_file} ne contient pas de "
+                    f"prévisions ensemblistes ou de tendances"
+                )
+
+            txt = txt.replace('# DtDerObs;', 'DtDerObs;')
 
         # get dataframe from text
         df0 = pd.read_csv(
@@ -124,7 +117,7 @@ def read_prd_from_prv(prv_files: List[str], datatype: str) -> pd.DataFrame:
             [
                 'entites',
                 'echeances',
-                'membres' if datatype == 'ensemble' else 'tendances',
+                'membres' if 'membres' in df0.index.names else 'tendances',
                 'dates_validite'
             ]
         )
