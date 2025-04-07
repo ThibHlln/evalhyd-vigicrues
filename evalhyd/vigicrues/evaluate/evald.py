@@ -26,6 +26,13 @@ def evald(
 ) -> Dict[str, np.ndarray | pd.DataFrame]:
     """Fonction pour évaluer des predictions déterministes de débits.
 
+    .. warning::
+
+       La cohérence des unités pour les paramètres correspondant à des
+       débits (à savoir *df_obs*, *df_prd*, *q_thr*, *m_cdt*) est de la
+       responsabilité de l'utilisateur.rice. En effet, aucune
+       vérification n'est effectuée par cette fonction.
+
     :Paramètres:
 
         df_obs: `pandas.DataFrame`
