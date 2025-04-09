@@ -1,9 +1,12 @@
 import pandas as pd
+import numpy as np
 from typing import List
 from libhydro.conv.xml import Message
 
 
-def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
+def read_prd_from_xml_sandre(
+        xml_files: List[str], seek_issue_date: bool = True
+) -> pd.DataFrame:
     """Lire les fichiers au format XML-SANDRE contenant les prédictions
     de débits et retourner sous forme de `pandas.DataFrame`.
 
@@ -12,6 +15,17 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
         xml_files: `list`
             La liste de fichiers au format XML-SANDRE contenant les
             prédictions de débits.
+
+        seek_issue_date: `bool`, optional
+            Choix de rechercher ou non les dates d'émission dans les
+            fichiers pour en déduire les échéances de prévision. Si
+            le choix est fait de ne pas les rechercher, les échéances de
+            prévision seront des rangs au lieu d'être des durées. Ceci
+            implique que les échéances entre les entités sont supposées
+            être les mêmes puisque, après l'assignation des rangs en
+            lieu et place des durées, elles seront identifiées par les
+            mêmes intitulés. Par défaut, les dates d'émission sont
+            recherchées et une erreur est générée si elles sont absentes.
 
     :Retourne:
 
@@ -87,16 +101,35 @@ def read_prd_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
             # select result column (drop other columns)
             df0 = df0.loc[:, ['res']]
 
-            # collect forecast issue date
-            issue_date = sim.dtderobs
-
             # rename result column
             df0 = df0.rename(columns={'res': 'valeur'})
 
-            # create new column with validity dates
-            df0.loc[:, 'echeances'] = (
+            if seek_issue_date:
+                # collect forecast issue date
+                if sim.dtbase is not None:
+                    issue_date = sim.dtbase
+                elif sim.dtderobs is not None:
+                    issue_date = sim.dtderobs
+                else:
+                    raise RuntimeError(
+                        f"Le fichier {xml_file} ne contient pas "
+                        f"de date d'émission de la prévision"
+                    )
+
+                # create new column with validity dates
+                df0.loc[:, 'echeances'] = (
                     df0.index.get_level_values('dates_validite') - issue_date
-            )
+                )
+            else:
+                # create new column with ranks as lead times
+                shape = tuple(map(len, df0.index.levels))
+                d = 0 if df0.index.names[0] == 'dates_validite' else 1
+                m = 1 if d == 0 else 1
+
+                df0.loc[:, 'echeances'] = (
+                    np.arange(shape[d])[:, np.newaxis]
+                    .repeat(shape[m], axis=1).flatten()
+                )
 
             # append column as additional level in row multi-index
             df0 = df0.set_index('echeances', append=True)

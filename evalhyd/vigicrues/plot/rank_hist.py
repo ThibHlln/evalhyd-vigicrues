@@ -208,8 +208,11 @@ def plot_rank_hist(
 
                 # save figure with custom file name
                 formatted_leadtime = (
-                    format_timedelta(leadtime) if leadtime != slice(None)
-                    else 'toutes-echeances'
+                    'toutes-echeances'
+                    if leadtime == slice(None)
+                    else format_timedelta(leadtime)
+                    if isinstance(leadtime, pd.Timedelta)
+                    else leadtime
                 )
 
                 kwargs = dict(
