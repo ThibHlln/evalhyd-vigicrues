@@ -69,13 +69,12 @@ def plot_rel_diag(
 
     # retrieve multi-index level values
     level_values = {
-        name: level for name, level in zip(
-            rel_diag.index.names, rel_diag.index.levels
-        )
+        level: rel_diag.index.unique(level)
+        for level in rel_diag.index.names
     }
     level_values[None] = [slice(None)]
 
-    # check that RANK_HIST was not computed with bootstrapping
+    # check that REL_DIAG was not computed with bootstrapping
     if len(level_values['echantillons']) > 1:
         raise ValueError(
             "visualisation non autorisée pour des résultats issus "
@@ -88,7 +87,10 @@ def plot_rel_diag(
     for site in level_values['entites']:
         for leadtime in level_values['echeances']:
             for s, subset in enumerate(level_values['sous_ensembles']):
-                for threshold in level_values['seuils']:
+                for threshold in (
+                        rel_diag.loc[(site, leadtime, subset)]
+                                .index.unique('seuils')
+                ):
                     # create figure and grid spec
                     fig = plt.figure(
                         figsize=(8, 8)

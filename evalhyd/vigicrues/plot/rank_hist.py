@@ -107,9 +107,8 @@ def plot_rank_hist(
 
     # retrieve multi-index level values
     level_values = {
-        name: level for name, level in zip(
-            rank_hist.index.names, rank_hist.index.levels
-        )
+        level: rank_hist.index.unique(level)
+        for level in rank_hist.index.names
     }
     level_values[None] = [slice(None)]
 

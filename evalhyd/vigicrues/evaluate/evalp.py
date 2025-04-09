@@ -208,14 +208,18 @@ def evalp(
     ]
 
     # check coherence between temporal levels
-    if not (df_prd.index.levels[3] == df_obs.index.levels[1]).all():
+    if not (
+            df_prd.index.unique(level='dates_validite')
+            == df_obs.index.unique(level='dates_validite')
+    ).all():
         raise ValueError(
             "dates de validité différentes entre les observations "
             "et les prévisions de débits"
         )
     else:
         dts = (
-            df_prd.index.levels[3].strftime('%Y-%m-%s %H:%M:%S').to_numpy()
+            df_prd.index.unique(level='dates_validite')
+            .strftime('%Y-%m-%s %H:%M:%S').to_numpy()
         )
 
     # convert observation data
@@ -252,7 +256,7 @@ def evalp(
 
             df = None
 
-            for s, site in enumerate(df_prd.index.levels[0]):
+            for s, site in enumerate(df_prd.index.unique(level='entites')):
                 # determine values to use for row multi-index levels
                 level_values = {
                     'entites':
@@ -260,11 +264,11 @@ def evalp(
                     'toutes_entites':
                         ['toutes'],
                     'echeances':
-                        df_prd.index.levels[1],
+                        df_prd.index.unique(level='echeances'),
                     'sous_ensembles': (
                         np.arange(t_msk.shape[2]) + 1 if t_msk is not None
                         else m_cdt[s] if m_cdt is not None
-                        else 1
+                        else [1]
                     ),
                     'echantillons':
                         np.arange(bootstrap['n_samples']) + 1
@@ -273,7 +277,7 @@ def evalp(
                     'seuils': [
                         f"{'≥' if events == 'high' else '≤'}{q}"
                         for q in q_thr[s]
-                    ],
+                    ] if q_thr is not None else None,
                     'composantes':
                         dict(
                             BS_CRD=['fiabilité', 'finesse', 'incertitude'],

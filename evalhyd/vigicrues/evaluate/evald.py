@@ -191,7 +191,7 @@ def evald(
     ]
 
     # check coherence between temporal levels
-    if not (df_prd.index.levels[1] == df_obs.index).all():
+    if not (df_prd.index.unique(level='dates_validite') == df_obs.index).all():
         raise ValueError(
             "dates de validité différentes entre les observations "
             "et les prévisions de débits"
@@ -210,10 +210,13 @@ def evald(
     # call evalhyd function (one site at a time)
     res_as_arr = evalhyd.evald(
         arr_obs, arr_prd, metrics,
-        q_thr[np.newaxis, :].repeat(arr_prd.shape[0], 0),
+        q_thr[np.newaxis, :].repeat(arr_prd.shape[0], 0)
+        if q_thr is not None else None,
         events, transform, exponent, epsilon,
-        t_msk[np.newaxis, ...].repeat(arr_prd.shape[0], 0),
-        m_cdt[np.newaxis, :].repeat(arr_prd.shape[0], 0),
+        t_msk[np.newaxis, ...].repeat(arr_prd.shape[0], 0)
+        if t_msk is not None else None,
+        m_cdt[np.newaxis, :].repeat(arr_prd.shape[0], 0)
+        if m_cdt is not None else None,
         bootstrap, dts, seed,
         diagnostics
     )
@@ -236,11 +239,11 @@ def evald(
             # determine values to use for row multi-index levels
             level_values = {
                 'echeances':
-                    df_prd.index.levels[0],
+                    df_prd.index.unique(level='echeances'),
                 'sous_ensembles': (
                     np.arange(t_msk.shape[0]) + 1 if t_msk is not None
                     else m_cdt if m_cdt is not None
-                    else 1
+                    else [1]
                 ),
                 'echantillons':
                     np.arange(bootstrap['n_samples']) + 1

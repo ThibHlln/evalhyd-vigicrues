@@ -94,7 +94,7 @@ def read_prd_from_prv(prv_files: List[str]) -> pd.DataFrame:
         # parse issue dates to timestamp
         df0.index = df0.index.set_levels(
             pd.to_datetime(
-                df0.index.levels[df0.index.names.index('dates_emission')],
+                df0.index.unique('dates_emission'),
                 format='%d-%m-%Y %H:%M'
             ),
             level='dates_emission'

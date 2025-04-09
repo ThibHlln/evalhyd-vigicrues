@@ -122,13 +122,13 @@ def read_prd_from_xml_sandre(
                 )
             else:
                 # create new column with ranks as lead times
-                shape = tuple(map(len, df0.index.levels))
-                d = 0 if df0.index.names[0] == 'dates_validite' else 1
-                m = 1 if d == 0 else 1
+                shape = tuple(
+                    len(df0.index.unique(level)) for level in df0.index.names
+                )
 
                 df0.loc[:, 'echeances'] = (
-                    np.arange(shape[d])[:, np.newaxis]
-                    .repeat(shape[m], axis=1).flatten()
+                    np.arange(shape[0])[:, np.newaxis]
+                    .repeat(shape[1], axis=1).flatten()
                 )
 
             # append column as additional level in row multi-index
