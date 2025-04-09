@@ -4,7 +4,8 @@ from .version import __version__
 
 from .read import (
     read_prd_from_xml_sandre, read_obs_from_xml_sandre,
-    read_prd_from_prv
+    read_prd_from_prv,
+    read_obs_from_csv_hydroportail
 )
 from .evaluate import evald
 from .evaluate import evalp
