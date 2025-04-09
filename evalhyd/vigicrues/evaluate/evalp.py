@@ -30,6 +30,13 @@ def evalp(
        responsabilité de l'utilisateur.rice. En effet, aucune
        vérification n'est effectuée par cette fonction.
 
+    .. note::
+
+       L'étendue temporelle des données d'observations fournies peut
+       être plus large que celles des données de prédictions fournies :
+       la fonction effectue la sélection des dates d'observations
+       nécessaires pour évaluer les prédictions.
+
     :Paramètres:
 
         df_obs: `pandas.DataFrame`
@@ -192,6 +199,13 @@ def evalp(
         raise ValueError(
             "'return_format' must be 'dataframe' or 'array'"
         )
+
+    # subset observations to retain only dates with predictions
+    df_obs = df_obs.loc[
+        df_obs.index.get_level_values('dates_validite').isin(
+            df_prd.index.get_level_values('dates_validite')
+        )
+    ]
 
     # check coherence between temporal levels
     if not (df_prd.index.levels[3] == df_obs.index.levels[1]).all():
