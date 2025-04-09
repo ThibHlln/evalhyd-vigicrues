@@ -218,6 +218,10 @@ def evald(
         diagnostics
     )
 
+    # turn metrics and/or diagnostics into empty list if not provided
+    metrics = [] if metrics is None else metrics
+    diagnostics = [] if diagnostics is None else diagnostics
+
     if return_format == 'array':
         # return arrays wrapped in a dictionary rather than a list
         return {
