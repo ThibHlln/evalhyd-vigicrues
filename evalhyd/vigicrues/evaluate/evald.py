@@ -191,14 +191,24 @@ def evald(
     ]
 
     # check coherence between temporal levels
-    if not (df_prd.index.unique(level='dates_validite') == df_obs.index).all():
-        raise ValueError(
-            "dates de validité différentes entre les observations "
-            "et les prévisions de débits"
-        )
+    error = ValueError(
+        "dates de validité différentes entre les observations "
+        "et les prévisions de débits"
+    )
+    if (
+            df_prd.index.unique(level='dates_validite').size
+            != df_obs.index.unique(level='dates_validite').size
+    ):
+        raise error
+    elif not (
+            df_prd.index.unique(level='dates_validite')
+            == df_obs.index.unique(level='dates_validite')
+    ).all():
+        raise error
     else:
         dts = (
-            df_obs.index.strftime('%Y-%m-%s %H:%M:%S').to_numpy()
+            df_obs.index.unique(level='dates_validite')
+            .strftime('%Y-%m-%s %H:%M:%S').to_numpy()
         )
 
     # convert observation data
