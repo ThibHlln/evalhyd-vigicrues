@@ -59,8 +59,8 @@ def plot_rel_diag(
     """
     # check levels of multi-index
     if rel_diag.index.names != [
-        'entites', 'echeances', 'sous_ensembles', 'echantillons',
-        'seuils', 'classes', 'axes'
+        'entite', 'echeance', 'sous_ensemble', 'echantillon',
+        'seuil', 'classe', 'axe'
     ]:
         raise RuntimeError(
             "'rel_diag' ne semble pas être une "
@@ -75,7 +75,7 @@ def plot_rel_diag(
     level_values[None] = [slice(None)]
 
     # check that REL_DIAG was not computed with bootstrapping
-    if len(level_values['echantillons']) > 1:
+    if len(level_values['echantillon']) > 1:
         raise ValueError(
             "visualisation non autorisée pour des résultats issus "
             "d'un échantillonnage par bootstrap"
@@ -84,12 +84,12 @@ def plot_rel_diag(
     # loop through sites, leadtimes, subsets, and thresholds
     filepaths = list()
 
-    for site in level_values['entites']:
-        for leadtime in level_values['echeances']:
-            for s, subset in enumerate(level_values['sous_ensembles']):
+    for site in level_values['entite']:
+        for leadtime in level_values['echeance']:
+            for s, subset in enumerate(level_values['sous_ensemble']):
                 for threshold in (
                         rel_diag.loc[(site, leadtime, subset)]
-                                .index.unique('seuils')
+                                .index.unique('seuil')
                 ):
                     # create figure and grid spec
                     fig = plt.figure(
@@ -102,7 +102,7 @@ def plot_rel_diag(
                     # slice dataframe to focus on content in a single figure
                     df = rel_diag.sort_index().loc[
                          (site, leadtime, subset, 'aucun', threshold), :
-                    ].unstack('axes').droplevel(0, axis=1)
+                    ].unstack('axe').droplevel(0, axis=1)
 
                     # plot reliability diagram over entire grid spec
                     ax0 = fig.add_subplot(gs[:, :])

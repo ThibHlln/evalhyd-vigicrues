@@ -61,7 +61,7 @@ def evald(
                    data=np.random.randint(100, 400, 2),
                    index=pd.Index(
                        [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')],
-                       name='dates_validite'
+                       name='date_validite'
                    ),
                    columns=pd.Index(['valeur'])
                )
@@ -87,7 +87,7 @@ def evald(
                    index=pd.MultiIndex.from_product(
                        [[pd.to_timedelta('1 day')],
                         [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')]],
-                       names=['echeances', 'dates_validite']
+                       names=['echeance', 'date_validite']
                    ),
                    columns=pd.Index(['valeur'])
                )
@@ -185,8 +185,8 @@ def evald(
 
     # subset observations to retain only dates with predictions
     df_obs = df_obs.loc[
-        df_obs.index.get_level_values('dates_validite').isin(
-            df_prd.index.get_level_values('dates_validite')
+        df_obs.index.get_level_values('date_validite').isin(
+            df_prd.index.get_level_values('date_validite')
         )
     ]
 
@@ -196,18 +196,18 @@ def evald(
         "et les prévisions de débits"
     )
     if (
-            df_prd.index.unique(level='dates_validite').size
-            != df_obs.index.unique(level='dates_validite').size
+            df_prd.index.unique(level='date_validite').size
+            != df_obs.index.unique(level='date_validite').size
     ):
         raise error
     elif not (
-            df_prd.index.unique(level='dates_validite')
-            == df_obs.index.unique(level='dates_validite')
+            df_prd.index.unique(level='date_validite')
+            == df_obs.index.unique(level='date_validite')
     ).all():
         raise error
     else:
         dts = (
-            df_obs.index.unique(level='dates_validite')
+            df_obs.index.unique(level='date_validite')
             .strftime('%Y-%m-%s %H:%M:%S').to_numpy()
         )
 
@@ -224,7 +224,7 @@ def evald(
     # call evalhyd function (one site at a time)
     res = {indicator: None for indicator in (metrics + diagnostics)}
 
-    for s, site in enumerate(df_obs.index.unique(level='entites')):
+    for s, site in enumerate(df_obs.index.unique(level='entite')):
         res_as_arr = evalhyd.evald(
             arr_obs[[s]], arr_prd[s], metrics,
             q_thr[[s], :].repeat(arr_prd.shape[1], 0)
@@ -251,30 +251,30 @@ def evald(
             for i, indicator in enumerate(metrics + diagnostics):
                 # determine values to use for row multi-index levels
                 level_values = {
-                    'entites':
+                    'entite':
                         [site],
-                    'echeances':
-                        df_prd.index.unique(level='echeances'),
-                    'sous_ensembles': (
+                    'echeance':
+                        df_prd.index.unique(level='echeance'),
+                    'sous_ensemble': (
                         np.arange(t_msk.shape[0]) + 1 if t_msk is not None
                         else m_cdt if m_cdt is not None
                         else [1]
                     ),
-                    'echantillons':
+                    'echantillon':
                         np.arange(bootstrap['n_samples']) + 1
                         if bootstrap is not None
                         else ['aucun'],
-                    'seuils': [
+                    'seuil': [
                         f"{'≥' if events == 'high' else '≤'}{q}"
                         for q in q_thr[s]
                     ],
-                    'composantes':
+                    'composante':
                         dict(
                             KGE_D=['r_pearson', 'alpha', 'beta'],
                             KGEPRIME_D=['r_pearson', 'gamma', 'beta'],
                             KGENP_D=['r_spearman', 'alpha_np', 'beta'],
                         ).get(indicator, None),
-                    'cellules':
+                    'cellule':
                         ['a', 'b', 'c', 'd'],
                 }
 

@@ -25,7 +25,7 @@ def read_prd_from_prv(prv_files: List[str]) -> pd.DataFrame:
     >>> df = read_prd_from_prv(['data/GRP_B_20241211_1023_5304.prv'])
     >>> df.xs('K0045510', level='entites', drop_level=False).xs('0001', level='membres', drop_level=False)
                                                           valeur
-    entites  echeances       membres dates_validite
+    entite   echeance        membre  date_validite
     K0045510 0 days 01:00:00 0001    2024-12-11 11:00:00   0.558
              0 days 02:00:00 0001    2024-12-11 12:00:00   0.553
              0 days 03:00:00 0001    2024-12-11 13:00:00   0.547
@@ -78,13 +78,13 @@ def read_prd_from_prv(prv_files: List[str]) -> pd.DataFrame:
         # rename indexes corresponding to `evalhyd` dimensions
         df0.columns = df0.columns.rename(
             {
-                'Stations': 'entites',
-                'Tendances': 'tendances',
-                'Scenarios': 'membres',
-                'DtDerObs': 'dates_emission',
+                'Stations': 'entite',
+                'Tendances': 'tendance',
+                'Scenarios': 'membre',
+                'DtDerObs': 'date_emission',
             }
         )
-        df0.index.name = 'dates_validite'
+        df0.index.name = 'date_validite'
 
         # move column multi-index levels to row multi-index levels
         df0 = df0.stack(
@@ -94,31 +94,31 @@ def read_prd_from_prv(prv_files: List[str]) -> pd.DataFrame:
         # parse issue dates to timestamp
         df0.index = df0.index.set_levels(
             pd.to_datetime(
-                df0.index.unique('dates_emission'),
+                df0.index.unique('date_emission'),
                 format='%d-%m-%Y %H:%M'
             ),
-            level='dates_emission'
+            level='date_emission'
         )
 
         # compute leadtimes from validity dates and issue dates
-        df0.loc[:, 'echeances'] = (
-            df0.index.get_level_values('dates_validite')
-            - df0.index.get_level_values('dates_emission')
+        df0.loc[:, 'echeance'] = (
+            df0.index.get_level_values('date_validite')
+            - df0.index.get_level_values('date_emission')
         )
 
         # introduce new level in row multi-index for leadtimes
-        df0 = df0.set_index('echeances', append=True)
+        df0 = df0.set_index('echeance', append=True)
 
         # drop issue dates level from row multi-index
-        df0 = df0.droplevel('dates_emission', axis=0)
+        df0 = df0.droplevel('date_emission', axis=0)
 
         # reorder levels in row multi-index to match evalhyd convention
         df0.index = df0.index.reorder_levels(
             [
-                'entites',
-                'echeances',
-                'membres' if 'membres' in df0.index.names else 'tendances',
-                'dates_validite'
+                'entite',
+                'echeance',
+                'membre' if 'membre' in df0.index.names else 'tendance',
+                'date_validite'
             ]
         )
 

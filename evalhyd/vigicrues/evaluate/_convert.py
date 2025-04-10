@@ -32,10 +32,10 @@ def convert_prd_df_to_arr(df: pd.DataFrame) -> np.ndarray:
     df = df.reset_index().set_index(df.index.names[:-1])
 
     # use validity dates as column index
-    df = df.pivot(columns='dates_validite', values='valeur')
+    df = df.pivot(columns='date_validite', values='valeur')
 
     # append column index as additional level in row index
-    df = df.stack(level='dates_validite', future_stack=True)
+    df = df.stack(level='date_validite', future_stack=True)
 
     # determine shape of potentially sliced dataframe
     # (sites, leadtimes, members, time)

@@ -39,7 +39,7 @@ def read_obs_from_csv_hydroportail(csv_files: List[str]) -> pd.DataFrame:
     ... )
     >>> df
                                valeur
-    entites    dates_validite
+    entite     date_validite
     K010002010 2019-01-01        3430
                2019-01-02        3320
                2019-01-03        3030
@@ -76,18 +76,18 @@ def read_obs_from_csv_hydroportail(csv_files: List[str]) -> pd.DataFrame:
             columns={
                 'Valeur (en l/s)': 'valeur',
                 'Valeur (en m³/s)': 'valeur',
-                'Date (TU)': 'dates_validite'
+                'Date (TU)': 'date_validite'
             }
         )
 
         # only keep relevant columns
-        df0 = df0.loc[:, ['dates_validite', 'valeur']]
+        df0 = df0.loc[:, ['date_validite', 'valeur']]
 
         # set dates as index
-        df0 = df0.set_index('dates_validite')
+        df0 = df0.set_index('date_validite')
 
         # prepend level to row multi-index for sites
-        df0 = pd.concat({entite: df0}, names=['entites'])
+        df0 = pd.concat({entite: df0}, names=['entite'])
 
         # concatenate with other sites
         df1 = pd.concat([df1, df0])

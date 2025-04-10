@@ -85,7 +85,7 @@ def plot_rank_hist(
     """
     # check levels of multi-index
     if rank_hist.index.names != [
-            'entites', 'echeances', 'sous_ensembles', 'echantillons', 'rangs'
+            'entite', 'echeance', 'sous_ensemble', 'echantillon', 'rang'
     ]:
         raise RuntimeError(
             "'rank_hist' ne semble pas être une "
@@ -95,14 +95,14 @@ def plot_rank_hist(
     # check validity of the X,Y axes
     lvl_axes = (row if row else None, col if col else None)
     for axis in (row, col):
-        if axis not in ('entites', 'echeances', 'sous_ensembles', None):
+        if axis not in ('entite', 'echeance', 'sous_ensemble', None):
             raise ValueError(
-                "les axes x et y ne peuvent être que 'entites' ou "
-                "ou 'echeances' ou 'sous_ensembles'"
+                "les axes x et y ne peuvent être que 'entite' ou "
+                "ou 'echeance' ou 'sous_ensemble'"
             )
 
     lvl_left = (
-        {'entites', 'echeances', 'sous_ensembles'}.difference(lvl_axes)
+        {'entite', 'echeance', 'sous_ensemble'}.difference(lvl_axes)
     )
 
     # retrieve multi-index level values
@@ -113,7 +113,7 @@ def plot_rank_hist(
     level_values[None] = [slice(None)]
 
     # check that RANK_HIST was not computed with bootstrapping
-    if len(level_values['echantillons']) > 1:
+    if len(level_values['echantillon']) > 1:
         raise ValueError(
             "visualisation non autorisée pour des résultats issus "
             "d'un échantillonnage par bootstrap"
@@ -121,15 +121,15 @@ def plot_rank_hist(
 
     # determine values of potential levels to loop through
     sites = (
-        level_values['entites'] if 'entites' in lvl_left
+        level_values['entite'] if 'entite' in lvl_left
         else [slice(None)]
     )
     leadtimes = (
-        level_values['echeances'] if 'echeances' in lvl_left
+        level_values['echeance'] if 'echeance' in lvl_left
         else [slice(None)]
     )
     subsets = (
-        level_values['sous_ensembles'] if 'sous_ensembles' in lvl_left
+        level_values['sous_ensemble'] if 'sous_ensemble' in lvl_left
         else [slice(None)]
     )
 
@@ -189,12 +189,12 @@ def plot_rank_hist(
                         if row and c == 0:
                             ax.set_ylabel(
                                 f"+{format_timedelta(row_)}"
-                                if row == 'echeances' else row_
+                                if row == 'echeance' else row_
                             )
                         if col and r == len(rows) - 1:
                             ax.set_xlabel(
                                 f"+{format_timedelta(col_)}"
-                                if col == 'echeances' else col_
+                                if col == 'echeance' else col_
                             )
 
                         ax.set_xticks([])

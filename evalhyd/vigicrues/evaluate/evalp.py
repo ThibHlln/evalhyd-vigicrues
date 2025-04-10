@@ -60,7 +60,7 @@ def evalp(
                    index=pd.MultiIndex.from_product(
                        [['entité 1', 'entité 2', 'entité 3'],
                         [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')]],
-                       names=['entites', 'dates_validite']
+                       names=['entite', 'date_validite']
                    ),
                    columns=pd.Index(['valeur'])
                )
@@ -89,7 +89,7 @@ def evalp(
                         [pd.to_timedelta('1 day')],
                         ['a', 'b', 'c', 'd'],
                         [pd.to_datetime('2001-08-07'), pd.to_datetime('2001-08-08')]],
-                       names=['entites', 'echeances', 'membres', 'dates_validite']
+                       names=['entite', 'echeance', 'membre', 'date_validite']
                    ),
                    columns=pd.Index(['valeur'])
                )
@@ -202,8 +202,8 @@ def evalp(
 
     # subset observations to retain only dates with predictions
     df_obs = df_obs.loc[
-        df_obs.index.get_level_values('dates_validite').isin(
-            df_prd.index.get_level_values('dates_validite')
+        df_obs.index.get_level_values('date_validite').isin(
+            df_prd.index.get_level_values('date_validite')
         )
     ]
 
@@ -213,18 +213,18 @@ def evalp(
         "et les prévisions de débits"
     )
     if (
-            df_prd.index.unique(level='dates_validite').size
-            != df_obs.index.unique(level='dates_validite').size
+            df_prd.index.unique(level='date_validite').size
+            != df_obs.index.unique(level='date_validite').size
     ):
         raise error
     elif not (
-            df_prd.index.unique(level='dates_validite')
-            == df_obs.index.unique(level='dates_validite')
+            df_prd.index.unique(level='date_validite')
+            == df_obs.index.unique(level='date_validite')
     ).all():
         raise error
     else:
         dts = (
-            df_prd.index.unique(level='dates_validite')
+            df_prd.index.unique(level='date_validite')
             .strftime('%Y-%m-%s %H:%M:%S').to_numpy()
         )
 
@@ -262,51 +262,51 @@ def evalp(
 
             df = None
 
-            for s, site in enumerate(df_prd.index.unique(level='entites')):
+            for s, site in enumerate(df_prd.index.unique(level='entite')):
                 # determine values to use for row multi-index levels
                 level_values = {
-                    'entites':
+                    'entite':
                         [site],
                     'toutes_entites':
                         ['toutes'],
-                    'echeances':
-                        df_prd.index.unique(level='echeances'),
-                    'sous_ensembles': (
+                    'echeance':
+                        df_prd.index.unique(level='echeance'),
+                    'sous_ensemble': (
                         np.arange(t_msk.shape[2]) + 1 if t_msk is not None
                         else m_cdt[s] if m_cdt is not None
                         else [1]
                     ),
-                    'echantillons':
+                    'echantillon':
                         np.arange(bootstrap['n_samples']) + 1
                         if bootstrap is not None
                         else ['aucun'],
-                    'seuils': [
+                    'seuil': [
                         f"{'≥' if events == 'high' else '≤'}{q}"
                         for q in q_thr[s]
                     ] if q_thr is not None else None,
-                    'composantes':
+                    'composante':
                         dict(
                             BS_CRD=['fiabilité', 'finesse', 'incertitude'],
                             BS_LBD=['biais', 'discrimination', 'finesse'],
                         ).get(indicator, None),
-                    'axes':
+                    'axe':
                         dict(
                             REL_DIAG=['x', 'y', 'ordinates'],
                         ).get(indicator, None),
-                    'niveaux':
+                    'niveau':
                         np.arange(n_mbr + 1),
-                    'classes':
+                    'classe':
                         np.arange(n_mbr + 1) / n_mbr,
-                    'quantiles':
+                    'quantile':
                         [
                             f'{q:.3f}'
                             for q in (np.arange(n_mbr) + 1) / (n_mbr + 1.)
                         ],
-                    'cellules':
+                    'cellule':
                         ['a', 'b', 'c', 'd'],
-                    'rangs':
+                    'rang':
                         np.arange(n_mbr + 1) + 1,
-                    'intervalles':
+                    'intervalle':
                         [f'{c}%' for c in c_lvl]
                         if c_lvl is not None else None,
                 }
@@ -330,7 +330,7 @@ def evalp(
                 if 'toutes_entites' in _levels[indicator]:
                     # rename index level name
                     df.index = df.index.set_names(
-                        'entites', level='toutes_entites'
+                        'entite', level='toutes_entites'
                     )
                     # leave sites loop as there is only one item
                     # for multi-sites metrics

@@ -39,7 +39,7 @@ def read_prd_from_xml_sandre(
     >>> df = read_prd_from_xml_sandre(['data/GRP_B_20241211_1023_5304.xml'])
     >>> df.xs('K0045510', level='entites', drop_level=False).xs('0001', level='membres', drop_level=False)
                                                             valeur
-    entites  echeances       membres dates_validite
+    entite   echeance        membre  date_validite
     K0045510 0 days 01:00:00 0001    2024-12-11 11:00:00 558.00000
              0 days 02:00:00 0001    2024-12-11 12:00:00 553.00000
              0 days 03:00:00 0001    2024-12-11 13:00:00 547.00000
@@ -77,8 +77,8 @@ def read_prd_from_xml_sandre(
                 # rename multi-index levels
                 df0.index = df0.index.rename(
                     {
-                        'lb': 'membres',
-                        'dte': 'dates_validite'
+                        'lb': 'membre',
+                        'dte': 'date_validite'
                     }
                 )
             elif sim.previsions_tend is not None:
@@ -88,8 +88,8 @@ def read_prd_from_xml_sandre(
                 # rename multi-index levels
                 df0.index = df0.index.rename(
                     {
-                        'tend': 'tendances',
-                        'dte': 'dates_validite'
+                        'tend': 'tendance',
+                        'dte': 'date_validite'
                     }
                 )
             else:
@@ -117,8 +117,8 @@ def read_prd_from_xml_sandre(
                     )
 
                 # create new column with validity dates
-                df0.loc[:, 'echeances'] = (
-                    df0.index.get_level_values('dates_validite') - issue_date
+                df0.loc[:, 'echeance'] = (
+                    df0.index.get_level_values('date_validite') - issue_date
                 )
             else:
                 # create new column with ranks as lead times
@@ -126,25 +126,25 @@ def read_prd_from_xml_sandre(
                     len(df0.index.unique(level)) for level in df0.index.names
                 )
 
-                df0.loc[:, 'echeances'] = (
+                df0.loc[:, 'echeance'] = (
                     np.arange(shape[0])[:, np.newaxis]
                     .repeat(shape[1], axis=1).flatten()
                 )
 
             # append column as additional level in row multi-index
-            df0 = df0.set_index('echeances', append=True)
+            df0 = df0.set_index('echeance', append=True)
 
             # prepend level to row multi-index for sites
-            df0 = pd.concat({sim.entite.code: df0}, names=['entites'])
+            df0 = pd.concat({sim.entite.code: df0}, names=['entite'])
 
             # reorder levels in row multi-index to match evalhyd convention
             df0.index = df0.index.reorder_levels(
                 [
-                    'entites',
-                    'echeances',
-                    'membres' if sim.prevs_ensemble is not None
-                    else 'tendances',
-                    'dates_validite'
+                    'entite',
+                    'echeance',
+                    'membre' if sim.prevs_ensemble is not None
+                    else 'tendance',
+                    'date_validite'
                 ]
             )
 
@@ -178,7 +178,7 @@ def read_obs_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
     >>> df = read_obs_from_xml_sandre(['data/export_hydro_series.xml'])
     >>> df
                                  valeur
-    entites    dates_validite
+    entite     date_validite
     H5201010   2010-01-01      165549.0
                2010-01-02      183860.0
                2010-01-03      186781.0
@@ -218,7 +218,7 @@ def read_obs_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
                 )
 
             # rename multi-index levels
-            df0.index.name = 'dates_validite'
+            df0.index.name = 'date_validite'
 
             # select result column (drop other columns)
             df0 = df0.loc[:, ['res']]
@@ -227,7 +227,7 @@ def read_obs_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
             df0 = df0.rename(columns={'res': 'valeur'})
 
             # prepend level to row multi-index for sites
-            df0 = pd.concat({obs.entite.code: df0}, names=['entites'])
+            df0 = pd.concat({obs.entite.code: df0}, names=['entite'])
 
             # concatenate with other sites
             df1 = pd.concat([df1, df0])
