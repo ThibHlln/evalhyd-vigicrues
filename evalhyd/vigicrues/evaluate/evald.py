@@ -7,7 +7,7 @@ from numpy import dtype
 from numpy.typing import NDArray
 import evalhyd
 
-from ._convert import convert_prd_df_to_arr
+from ._convert import convert_obs_df_to_arr, convert_prd_df_to_arr
 
 
 _levels = toml.load(
@@ -48,7 +48,7 @@ def evald(
             `pd.Timestamp`) et une colonne nommée 'valeur' (de type
             `float`) contenant des débits dans une unité identique à
             celle de *df_prd* et *q_thr*.
-            dimensions : (temps,)
+            dimensions : (entités, temps)
 
             *Exemple de paramètre :*
 
@@ -73,7 +73,7 @@ def evald(
             types `str` et `pd.Timestamp`) et une colonne nommée
             'valeur' (de type `float`) contenant des débits dans une
             unité identique à celle de *df_obs* et *q_thr*.
-            dimensions : (échéances, temps)
+            dimensions : (entités, échéances, temps)
 
             *Exemple de paramètre :*
 
@@ -100,7 +100,7 @@ def evald(
             Le vecteur contenant le(s) seuil(s) de débits à considérer
             pour les indicateurs évaluant les prédictions de dépassement
             de seuils.
-            dimensions : (seuils,)
+            dimensions : (entités, seuils)
 
         events: `str`, optionnel
             Le type de dépassement de seuil à considérer pour les
@@ -122,7 +122,7 @@ def evald(
             correspondant à la période entière est généré. Si la
             matrice est fournie, autant de jeux d'indicateurs que de
             masques fournis sont générés.
-            dimensions : (sous-ensembles, temps)
+            dimensions : (entités, sous-ensembles, temps)
 
         m_cdt: `numpy.ndarray` ``[dtype('|S32')]``, optionnel
             Le vecteur contenant les conditions permettant de
@@ -137,7 +137,7 @@ def evald(
             d'indicateurs correspondant à la période entière est généré.
             Si la matrice est fournie seule, autant de jeux
             d'indicateurs que de conditions fournies sont générés.
-            dimensions : (sous-ensembles,)
+            dimensions : (entités, sous-ensembles)
 
         bootstrap: `dict`, optionnel
             Les valeurs des paramètres pour la méthode de bootstrap
@@ -212,77 +212,83 @@ def evald(
         )
 
     # convert observation data
-    arr_obs = df_obs.to_numpy().T
+    arr_obs = convert_obs_df_to_arr(df_obs)
 
     # convert prediction data
     arr_prd = convert_prd_df_to_arr(df_prd)
-
-    # call evalhyd function (one site at a time)
-    res_as_arr = evalhyd.evald(
-        arr_obs, arr_prd, metrics,
-        q_thr[np.newaxis, :].repeat(arr_prd.shape[0], 0)
-        if q_thr is not None else None,
-        events, transform, exponent, epsilon,
-        t_msk[np.newaxis, ...].repeat(arr_prd.shape[0], 0)
-        if t_msk is not None else None,
-        m_cdt[np.newaxis, :].repeat(arr_prd.shape[0], 0)
-        if m_cdt is not None else None,
-        bootstrap, dts, seed,
-        diagnostics
-    )
 
     # turn metrics and/or diagnostics into empty list if not provided
     metrics = [] if metrics is None else metrics
     diagnostics = [] if diagnostics is None else diagnostics
 
-    if return_format == 'array':
-        # return arrays wrapped in a dictionary rather than a list
-        return {
-            indicator: res_as_arr[i]
-            for i, indicator in enumerate(metrics + diagnostics)
-        }
-    else:  # 'dataframe'
+    # call evalhyd function (one site at a time)
+    res = {indicator: None for indicator in (metrics + diagnostics)}
 
-        res_as_df = {}
+    for s, site in enumerate(df_obs.index.unique(level='entites')):
+        res_as_arr = evalhyd.evald(
+            arr_obs[[s]], arr_prd[s], metrics,
+            q_thr[[s], :].repeat(arr_prd.shape[1], 0)
+            if q_thr is not None else None,
+            events, transform, exponent, epsilon,
+            t_msk[[s], ...].repeat(arr_prd.shape[1], 0)
+            if t_msk is not None else None,
+            m_cdt[[s], :].repeat(arr_prd.shape[1], 0)
+            if m_cdt is not None else None,
+            bootstrap, dts, seed,
+            diagnostics
+        )
 
-        for i, indicator in enumerate(metrics + diagnostics):
-            # determine values to use for row multi-index levels
-            level_values = {
-                'echeances':
-                    df_prd.index.unique(level='echeances'),
-                'sous_ensembles': (
-                    np.arange(t_msk.shape[0]) + 1 if t_msk is not None
-                    else m_cdt if m_cdt is not None
-                    else [1]
-                ),
-                'echantillons':
-                    np.arange(bootstrap['n_samples']) + 1
-                    if bootstrap is not None
-                    else ['aucun'],
-                'seuils': [
-                    f"{'≥' if events == 'high' else '≤'}{q}"
-                    for q in q_thr
-                ],
-                'composantes':
-                    dict(
-                        KGE_D=['r_pearson', 'alpha', 'beta'],
-                        KGEPRIME_D=['r_pearson', 'gamma', 'beta'],
-                        KGENP_D=['r_spearman', 'alpha_np', 'beta'],
-                    ).get(indicator, None),
-                'cellules':
-                    ['a', 'b', 'c', 'd'],
-            }
+        if return_format == 'array':
+            # store results arrays in a dictionary rather than a list
+            for i, indicator in enumerate(metrics + diagnostics):
+                if res[indicator] is None:
+                    res[indicator] = res_as_arr[i][np.newaxis]
+                else:
+                    res[indicator] = np.concatenate(
+                        [res[indicator], res_as_arr[i][np.newaxis]]
+                    )
+        else:  # 'dataframe'
+            for i, indicator in enumerate(metrics + diagnostics):
+                # determine values to use for row multi-index levels
+                level_values = {
+                    'entites':
+                        [site],
+                    'echeances':
+                        df_prd.index.unique(level='echeances'),
+                    'sous_ensembles': (
+                        np.arange(t_msk.shape[0]) + 1 if t_msk is not None
+                        else m_cdt if m_cdt is not None
+                        else [1]
+                    ),
+                    'echantillons':
+                        np.arange(bootstrap['n_samples']) + 1
+                        if bootstrap is not None
+                        else ['aucun'],
+                    'seuils': [
+                        f"{'≥' if events == 'high' else '≤'}{q}"
+                        for q in q_thr[s]
+                    ],
+                    'composantes':
+                        dict(
+                            KGE_D=['r_pearson', 'alpha', 'beta'],
+                            KGEPRIME_D=['r_pearson', 'gamma', 'beta'],
+                            KGENP_D=['r_spearman', 'alpha_np', 'beta'],
+                        ).get(indicator, None),
+                    'cellules':
+                        ['a', 'b', 'c', 'd'],
+                }
 
-            # wrap results array in multi-index dataframe
-            df = pd.DataFrame(
-                data=res_as_arr[i].flatten(),
-                index=pd.MultiIndex.from_product(
-                    iterables=[level_values[lvl] for lvl in
-                               _levels[indicator]],
-                    names=_levels[indicator]
+                # wrap results array in multi-index dataframe
+                df = pd.DataFrame(
+                    data=res_as_arr[i].flatten(),
+                    index=pd.MultiIndex.from_product(
+                        iterables=[level_values[lvl] for lvl in
+                                   _levels[indicator]],
+                        names=_levels[indicator]
+                    )
                 )
-            )
 
-            res_as_df[indicator] = df
+                # store results dataframe in a dictionary
+                res[indicator] = pd.concat([res[indicator], df])
 
-        return res_as_df
+    return res
