@@ -69,6 +69,10 @@ def read_prd_from_xml_sandre(
         df1 = None
 
         for sim in d.simulations:
+            # skip timeseries that are not on streamflow
+            if sim.grandeur != 'Q':
+                continue
+
             # extract predictions dataframe
             if sim.prevs_ensemble is not None:
                 # extract ensemble predictions
@@ -209,6 +213,10 @@ def read_obs_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
         df1 = None
 
         for obs in d.seriesobselab:
+            # skip timeseries that are not on streamflow
+            if obs.grandeur != 'Q':
+                continue
+
             # extract observations dataframe
             if obs.observations is not None:
                 df0 = obs.observations

@@ -72,6 +72,14 @@ def read_prd_from_prv(prv_files: List[str]) -> pd.DataFrame:
             keep_default_na=True,
         )
 
+        # skip timeseries that are not on streamflow
+        try:
+            df0 = df0.xs('Q', axis=1, level='Grandeurs', drop_level=False)
+        except KeyError:
+            raise RuntimeError(
+                f"Le fichier {prv_file} ne contient pas de séries de débit"
+            )
+
         # drop irrelevant levels for `evalhyd`
         df0 = df0.droplevel(('Grandeurs', 'IdSeries'), axis=1)
 

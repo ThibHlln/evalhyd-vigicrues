@@ -71,6 +71,15 @@ def read_obs_from_csv_hydroportail(csv_files: List[str]) -> pd.DataFrame:
         # remove timezone from datetime
         df0['Date (TU)'] = df0['Date (TU)'].dt.tz_localize(None)
 
+        # check that timeseries are on streamflow
+        if not (
+                set(df0.columns)
+                .intersection(['Valeur (en l/s)', 'Valeur (en m³/s)'])
+        ):
+            raise RuntimeError(
+                f"Le fichier {csv_file} ne contient pas de séries de débit"
+            )
+
         # rename columns
         df0 = df0.rename(
             columns={
