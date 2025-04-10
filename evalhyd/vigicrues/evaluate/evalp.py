@@ -321,7 +321,8 @@ def evalp(
                                 iterables=[level_values[lvl] for lvl in
                                            _levels[indicator]],
                                 names=_levels[indicator]
-                            )
+                            ),
+                            columns=['valeur']
                         )
                     ]
                 )

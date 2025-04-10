@@ -285,7 +285,8 @@ def evald(
                         iterables=[level_values[lvl] for lvl in
                                    _levels[indicator]],
                         names=_levels[indicator]
-                    )
+                    ),
+                    columns=['valeur']
                 )
 
                 # store results dataframe in a dictionary
