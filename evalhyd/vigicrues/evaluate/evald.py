@@ -211,6 +211,22 @@ def evald(
             .strftime('%Y-%m-%s %H:%M:%S').to_numpy()
         )
 
+    # check coherence on sites
+    error = ValueError(
+        "entités différentes entre les observations "
+        "et les prévisions de débits"
+    )
+    if (
+            df_prd.index.unique(level='entite').size
+            != df_obs.index.unique(level='entite').size
+    ):
+        raise error
+    elif not (
+            df_prd.index.unique(level='entite')
+            == df_obs.index.unique(level='entite')
+    ).all():
+        raise error
+
     # convert observation data
     arr_obs = convert_obs_df_to_arr(df_obs)
 
