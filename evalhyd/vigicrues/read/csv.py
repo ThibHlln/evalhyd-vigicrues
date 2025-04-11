@@ -1,4 +1,4 @@
-import os
+import pathlib
 import pandas as pd
 from typing import List
 
@@ -57,11 +57,8 @@ def read_obs_from_csv_hydroportail(csv_files: List[str]) -> pd.DataFrame:
     df1 = None
 
     for csv_file in csv_files:
-        # determine entite code from filename
-        entite = (
-            csv_file.split(os.sep)[-1].split('\\')[-1].split('/')[-1]
-            .split('_')[0]
-        )
+        # determine entity code from filename
+        entite = pathlib.Path(csv_file).stem.split('_')[0]
 
         # read in CSV with `pandas`
         df0 = pd.read_csv(
