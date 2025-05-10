@@ -9,4 +9,4 @@ from .read import (
 )
 from .evaluate import evald
 from .evaluate import evalp
-from .plot import plot_rank_hist
+from .plot import plot_rank_hist, plot_rel_diag

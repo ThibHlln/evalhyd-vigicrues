@@ -62,10 +62,15 @@ setup(
 
     python_requires=">=3.8",
 
-    packages=['evalhyd.vigicrues'],
+    packages=[
+        'evalhyd.vigicrues',
+        'evalhyd.vigicrues.evaluate',
+        'evalhyd.vigicrues.plot',
+        'evalhyd.vigicrues.read',
+    ],
 
     package_data={
-        'evalhyd.vigicrues': [
+        'evalhyd.vigicrues.evaluate': [
             'evald.toml',
             'evalp.toml'
         ]
