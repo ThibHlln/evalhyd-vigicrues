@@ -154,12 +154,12 @@ def evalp(
             l'évaluation des prédictions. Les trois paramètres sont :
             `"n_samples"` le nombre d'échantillons aléatoires,
             `"len_samples"` la longueur d'un échantillon en nombre
-             d'années et `"summary"` les statistiques à calculer pour
-             caractériser la distribution d'échantillonnage. Si les
-             valeurs ne sont pas fournies, aucun bootstrap n'est
-             effectué.
+            d'années et `"summary"` les statistiques à calculer pour
+            caractériser la distribution d'échantillonnage. Si les
+            valeurs ne sont pas fournies, aucun bootstrap n'est
+            effectué.
 
-             *Exemple de paramètre :*
+            *Exemple de paramètre :*
 
             .. code-block:: python
 
