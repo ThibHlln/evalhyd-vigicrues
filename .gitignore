@@ -1,1 +1,4 @@
 *.pyc
+
+# macOS specific
+.DS_Store
