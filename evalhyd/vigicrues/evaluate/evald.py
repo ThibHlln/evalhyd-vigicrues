@@ -36,7 +36,7 @@ def evald(
     .. note::
 
        L'étendue temporelle des données d'observations fournies peut
-       être plus large que celles des données de prédictions fournies :
+       être plus large que celle des données de prédictions fournies :
        la fonction effectue la sélection des dates d'observations
        nécessaires pour évaluer les prédictions.
 
