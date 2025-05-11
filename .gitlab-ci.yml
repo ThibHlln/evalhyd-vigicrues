@@ -8,9 +8,6 @@ generate-docs:
   image: mambaorg/micromamba
   script:
     # install dependencies of `evalhyd-vigicrues`
-    - micromamba install --yes pip git
-    - pip install git+https://gitlab.com/vigicrues/hydro3/libhydro
-
     - micromamba install --yes --file environment.yml
 
     # install `evalhyd-vigicrues` itself
