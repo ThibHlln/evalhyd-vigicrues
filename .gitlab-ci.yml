@@ -7,19 +7,19 @@ generate-docs:
   stage: build
   image: mambaorg/micromamba
   script:
-    # install some dependencies of `evalhyd-vigicrues`
-    - micromamba install --yes evalhyd-python
-
+    # install dependencies of `evalhyd-vigicrues`
     - micromamba install --yes pip git
     - pip install git+https://gitlab.com/vigicrues/hydro3/libhydro
 
-    # install `evalhyd-vigicrues`
+    - micromamba install --yes -f requirements.txt
+
+    # install `evalhyd-vigicrues` itself
     - pip install .
 
-    # install required packages to build docs
+    # install dependencies to build docs of `evalhyd-vigicrues`
     - micromamba install --yes -f docs/requirements-docs.txt
 
-    # generate docs with Sphinx
+    # generate docs with `sphinx`
     - (cd docs && make build_html)
   artifacts:
     paths:
