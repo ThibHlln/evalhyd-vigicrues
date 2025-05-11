@@ -1,8 +1,0 @@
-git
-make
-python
-sphinx==8.2.3
-docutils==0.21.2
-pydata-sphinx-theme==0.13.3
-sphinx-design==0.6.1
-myst-nb==1.2.0

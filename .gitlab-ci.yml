@@ -14,10 +14,10 @@ generate-docs:
     - pip install .
 
     # install dependencies to build docs of `evalhyd-vigicrues`
-    - micromamba install --yes -f docs/requirements-docs.txt
+    - micromamba install --yes --file docs/environment-docs.yml
 
     # generate docs with `sphinx`
-    - (cd docs && make build_html)
+    - (cd docs && make local_html)
   artifacts:
     paths:
       - docs/__build/html/
