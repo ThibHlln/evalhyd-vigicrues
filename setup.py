@@ -10,17 +10,6 @@ with open('evalhyd/vigicrues/version.py') as fv:
     exec(fv.read())
 
 
-def read_requirements(filename):
-    requires = []
-    with open(filename, 'r') as fr:
-        for line in fr:
-            package = line.strip()
-            if package:
-                requires.append(package)
-
-    return requires
-
-
 def read_authors(filename):
     authors = []
     with open(filename, 'r') as fz:
@@ -76,5 +65,12 @@ setup(
         ]
     },
 
-    install_requires=read_requirements('requirements.txt')
+    install_requires = [
+        'numpy<2.0',
+        'pandas',
+        'matplotlib',
+        'toml',
+        'evalhyd-python>=0.1.2,< 2.0',
+        'libhydro==0.9.5'
+    ]
 )

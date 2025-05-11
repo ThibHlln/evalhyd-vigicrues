@@ -1,6 +1,6 @@
 git
 make
-python==3.12
+python
 sphinx==8.2.3
 docutils==0.21.2
 pydata-sphinx-theme==0.13.3

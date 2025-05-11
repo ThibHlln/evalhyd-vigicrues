@@ -1,0 +1,10 @@
+channels:
+  - conda-forge
+dependencies:
+  - numpy<2.0
+  - pandas
+  - matplotlib
+  - toml
+  - evalhyd-python>=0.1.2,<2.0
+  - pip:
+    - "git+https://gitlab.com/vigicrues/hydro3/libhydro@0.9.5"
