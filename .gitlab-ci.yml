@@ -43,7 +43,7 @@ git-clone-push-github:
     - chmod 700 ~/.ssh
 
     # use ssh-keyscan to scan the keys of GitHub's server
-    - ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
 
     # clone evalhyd git repository on GitHub
