@@ -11,7 +11,7 @@ generate-docs:
     - micromamba install --yes pip git
     - pip install git+https://gitlab.com/vigicrues/hydro3/libhydro
 
-    - micromamba install --yes -f requirements.txt
+    - micromamba install --yes --file environment.yml
 
     # install `evalhyd-vigicrues` itself
     - pip install .
