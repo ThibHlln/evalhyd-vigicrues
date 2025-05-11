@@ -1,0 +1,72 @@
+stages:
+  - build
+  - deploy
+
+# generate docs with doxygen (XML) and sphinx (HTML)
+generate-docs:
+  stage: build
+  image: mambaorg/micromamba
+  script:
+    # install some dependencies of `evalhyd-vigicrues`
+    - micromamba install --yes evalhyd-python
+
+    - micromamba install --yes pip git
+    - pip install git+https://gitlab.com/vigicrues/hydro3/libhydro
+
+    # install `evalhyd-vigicrues`
+    - pip install .
+
+    # install required packages to build docs
+    - micromamba install --yes -f docs/requirements-docs.txt
+
+    # generate docs with Sphinx
+    - (cd docs && make build_html)
+  artifacts:
+    paths:
+      - docs/__build/html/
+
+# generate HTML with Sphinx
+git-clone-push-github:
+  stage: deploy
+  image: ubuntu
+  script:
+    # based on https://gitlab.com/gitlab-examples/ssh-private-key/-/blob/master/.gitlab-ci.yml
+
+    # install ssh-agent if not already installed
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
+
+    # run ssh-agent (inside the build environment)
+    - eval $(ssh-agent -s)
+
+    # add the SSH private key stored in CI/CD variable to the agent store
+    - echo "$SSH_PRIVATE_KEY_EVALHYD_GITHUB" | tr -d '\r' | ssh-add -
+
+    # create the SSH directory and give it the right permissions
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+
+    # use ssh-keyscan to scan the keys of GitHub's server
+    - ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+    # clone evalhyd git repository on GitHub
+    - git clone git@github.com:ThibHlln/evalhyd-vigicrues.git html
+
+    # configure user details
+    - git config --global user.email "$GITLAB_USER_EMAIL"
+    - git config --global user.name "$GITLAB_USER_NAME"
+
+    # copy locally build docs into git repository
+    - \cp -rf ./docs/__build/html/. ./html/
+
+    # remove DNS CNAME (ignore if does not exist)
+    - rm -f ./html/CNAME
+
+    # commit changes and push to GitHub remote
+    - cd html
+    - git add --all
+    - git commit -m "update html"
+    - git push origin main
+
+  dependencies:
+    - generate-docs
