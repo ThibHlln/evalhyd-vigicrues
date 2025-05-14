@@ -63,7 +63,7 @@ git-clone-push-github:
     - chmod 644 ~/.ssh/known_hosts
 
     # clone evalhyd git repository on GitHub
-    - git clone git@github.com:ThibHlln/evalhyd-vigicrues.git html
+    - git clone git@github.com:hydrogr/evalhyd-vigicrues.git html
 
     # configure user details
     - git config --global user.email "$GITLAB_USER_EMAIL"
