@@ -23,20 +23,21 @@ def read_prd_from_prv(prv_files: List[str]) -> pd.DataFrame:
     Récupérer les prédictions de débits sous forme de dataframe :
 
     >>> df = read_prd_from_prv(['data/GRP_B_20241211_1023_5304.prv'])
-    >>> df.xs('K0045510', level='entites', drop_level=False).xs('0001', level='membres', drop_level=False)
-                                                          valeur
-    entite   echeance        membre  date_validite
-    K0045510 0 days 01:00:00 0001    2024-12-11 11:00:00   0.558
-             0 days 02:00:00 0001    2024-12-11 12:00:00   0.553
-             0 days 03:00:00 0001    2024-12-11 13:00:00   0.547
-             0 days 04:00:00 0001    2024-12-11 14:00:00   0.541
-             0 days 05:00:00 0001    2024-12-11 15:00:00   0.535
-    ...                                                      ...
-             4 days 20:00:00 0001    2024-12-16 06:00:00   0.922
-             4 days 21:00:00 0001    2024-12-16 07:00:00   0.904
-             4 days 22:00:00 0001    2024-12-16 08:00:00   0.886
-             4 days 23:00:00 0001    2024-12-16 09:00:00   0.869
-             5 days 00:00:00 0001    2024-12-16 10:00:00   0.852
+    >>> df.xs('K0045510', level='entite', drop_level=False).xs('0001', level='membre', drop_level=False)  # doctest: +NORMALIZE_WHITESPACE
+                                                         valeur
+    entite   echeance        membre date_validite
+    K0045510 0 days 01:00:00 0001   2024-12-11 11:00:00   0.558
+             0 days 02:00:00 0001   2024-12-11 12:00:00   0.553
+             0 days 03:00:00 0001   2024-12-11 13:00:00   0.547
+             0 days 04:00:00 0001   2024-12-11 14:00:00   0.541
+             0 days 05:00:00 0001   2024-12-11 15:00:00   0.535
+    ...                                                     ...
+             4 days 20:00:00 0001   2024-12-16 06:00:00   0.922
+             4 days 21:00:00 0001   2024-12-16 07:00:00   0.904
+             4 days 22:00:00 0001   2024-12-16 08:00:00   0.886
+             4 days 23:00:00 0001   2024-12-16 09:00:00   0.869
+             5 days 00:00:00 0001   2024-12-16 10:00:00   0.852
+    <BLANKLINE>
     [120 rows x 1 columns]
     """
     df1 = None

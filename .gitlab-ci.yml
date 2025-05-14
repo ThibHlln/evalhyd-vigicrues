@@ -1,10 +1,28 @@
 stages:
-  - build
-  - deploy
+  - tests
+  - build_docs
+  - deploy_docs
+
+# generate docs with doxygen (XML) and sphinx (HTML)
+tests:
+  stage: tests
+  image: mambaorg/micromamba
+  script:
+    # install dependencies of `evalhyd-vigicrues`
+    - micromamba install --yes --file environment.yml
+
+    # install `evalhyd-vigicrues` itself
+    - pip install .
+
+    # test package
+    - (cd tests && python run_all_tests.py)
+  artifacts:
+    paths:
+      - docs/__build/html/
 
 # generate docs with doxygen (XML) and sphinx (HTML)
 generate-docs:
-  stage: build
+  stage: build_docs
   image: mambaorg/micromamba
   script:
     # install dependencies of `evalhyd-vigicrues`
@@ -24,7 +42,7 @@ generate-docs:
 
 # generate HTML with Sphinx
 git-clone-push-github:
-  stage: deploy
+  stage: deploy_docs
   image: ubuntu
   script:
     # based on https://gitlab.com/gitlab-examples/ssh-private-key/-/blob/master/.gitlab-ci.yml

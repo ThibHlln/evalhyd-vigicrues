@@ -37,20 +37,21 @@ def read_prd_from_xml_sandre(
     Récupérer les prédictions de débits sous forme de dataframe :
 
     >>> df = read_prd_from_xml_sandre(['data/GRP_B_20241211_1023_5304.xml'])
-    >>> df.xs('K0045510', level='entites', drop_level=False).xs('0001', level='membres', drop_level=False)
-                                                            valeur
-    entite   echeance        membre  date_validite
-    K0045510 0 days 01:00:00 0001    2024-12-11 11:00:00 558.00000
-             0 days 02:00:00 0001    2024-12-11 12:00:00 553.00000
-             0 days 03:00:00 0001    2024-12-11 13:00:00 547.00000
-             0 days 04:00:00 0001    2024-12-11 14:00:00 541.00000
-             0 days 05:00:00 0001    2024-12-11 15:00:00 535.00000
-    ...                                                        ...
-             4 days 20:00:00 0001    2024-12-16 06:00:00 922.00000
-             4 days 21:00:00 0001    2024-12-16 07:00:00 904.00000
-             4 days 22:00:00 0001    2024-12-16 08:00:00 886.00000
-             4 days 23:00:00 0001    2024-12-16 09:00:00 869.00000
-             5 days 00:00:00 0001    2024-12-16 10:00:00 852.00000
+    >>> df.xs('K0045510', level='entite', drop_level=False).xs('0001', level='membre', drop_level=False)  # doctest: +NORMALIZE_WHITESPACE
+                                                         valeur
+    entite   echeance        membre date_validite
+    K0045510 0 days 01:00:00 0001   2024-12-11 11:00:00   558.0
+             0 days 02:00:00 0001   2024-12-11 12:00:00   553.0
+             0 days 03:00:00 0001   2024-12-11 13:00:00   547.0
+             0 days 04:00:00 0001   2024-12-11 14:00:00   541.0
+             0 days 05:00:00 0001   2024-12-11 15:00:00   535.0
+    ...                                                     ...
+             4 days 20:00:00 0001   2024-12-16 06:00:00   922.0
+             4 days 21:00:00 0001   2024-12-16 07:00:00   904.0
+             4 days 22:00:00 0001   2024-12-16 08:00:00   886.0
+             4 days 23:00:00 0001   2024-12-16 09:00:00   869.0
+             5 days 00:00:00 0001   2024-12-16 10:00:00   852.0
+    <BLANKLINE>
     [120 rows x 1 columns]
     """
     # loop through XML files
@@ -180,21 +181,21 @@ def read_obs_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
     Récupérer les observations de débits sous forme de dataframe :
 
     >>> df = read_obs_from_xml_sandre(['data/export_hydro_series.xml'])
-    >>> df
-                                 valeur
+    >>> df  # doctest: +NORMALIZE_WHITESPACE
+                                valeur
     entite     date_validite
-    H5201010   2010-01-01      165549.0
-               2010-01-02      183860.0
-               2010-01-03      186781.0
-               2010-01-04      165038.0
-               2010-01-05      130174.0
-    ...                             ...
-    H507101002 2019-12-28      111972.0
-               2019-12-29      112633.0
-               2019-12-30       97809.0
-               2019-12-31       92378.0
-               2020-01-01       72622.0
-
+    H5201010   2010-01-01     165549.0
+               2010-01-02     183860.0
+               2010-01-03     186781.0
+               2010-01-04     165038.0
+               2010-01-05     130174.0
+    ...                            ...
+    H507101002 2019-12-28     111972.0
+               2019-12-29     112633.0
+               2019-12-30      97809.0
+               2019-12-31      92378.0
+               2020-01-01      72622.0
+    <BLANKLINE>
     [18039 rows x 1 columns]
     """
     # loop through XML files

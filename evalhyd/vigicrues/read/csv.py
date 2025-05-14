@@ -33,24 +33,25 @@ def read_obs_from_csv_hydroportail(csv_files: List[str]) -> pd.DataFrame:
     Récupérer les observations de débits sous forme de dataframe :
 
     >>> df = read_obs_from_csv_hydroportail(
-    ...     ['K010002010_QmnJ(n=1_non-glissant).csv',
-    ...      'K025302002_QmnJ(n=1_non-glissant).csv',
-    ...      'K025801001_QmnJ(n=1_non-glissant).csv']
+    ...     ['data/K010002010_QmnJ(n=1_non-glissant).csv',
+    ...      'data/K025302002_QmnJ(n=1_non-glissant).csv',
+    ...      'data/K025801001_QmnJ(n=1_non-glissant).csv']
     ... )
-    >>> df
-                               valeur
+    >>> df  # doctest: +NORMALIZE_WHITESPACE
+                              valeur
     entite     date_validite
-    K010002010 2019-01-01        3430
-               2019-01-02        3320
-               2019-01-03        3030
-               2019-01-04        2890
-               2019-01-05        2800
-    ...                           ...
-    K025801001 2019-12-27         623
-               2019-12-28         563
-               2019-12-29         505
-               2019-12-30         450
-               2019-12-31         416
+    K010002010 2019-01-01       3430
+               2019-01-02       3320
+               2019-01-03       3030
+               2019-01-04       2890
+               2019-01-05       2800
+    ...                          ...
+    K025801001 2019-12-27        623
+               2019-12-28        563
+               2019-12-29        505
+               2019-12-30        450
+               2019-12-31        416
+    <BLANKLINE>
     [1095 rows x 1 columns]
     """
     # loop through CSV files
