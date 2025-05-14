@@ -1,11 +1,11 @@
 stages:
-  - tests
+  - test
   - build_docs
   - deploy_docs
 
-# generate docs with doxygen (XML) and sphinx (HTML)
+# run integration tests
 tests:
-  stage: tests
+  stage: test
   image: mambaorg/micromamba
   script:
     # install dependencies of `evalhyd-vigicrues`
@@ -16,11 +16,8 @@ tests:
 
     # test package
     - (cd tests && python run_all_tests.py)
-  artifacts:
-    paths:
-      - docs/__build/html/
 
-# generate docs with doxygen (XML) and sphinx (HTML)
+# generate docs with sphinx (HTML)
 generate-docs:
   stage: build_docs
   image: mambaorg/micromamba
@@ -40,7 +37,7 @@ generate-docs:
     paths:
       - docs/__build/html/
 
-# generate HTML with Sphinx
+# push HTML to GitHub repository
 git-clone-push-github:
   stage: deploy_docs
   image: ubuntu
