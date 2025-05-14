@@ -34,6 +34,7 @@ git-clone-push-github:
 
     # run ssh-agent (inside the build environment)
     - eval $(ssh-agent -s)
+    - ssh-keyscan github.com
 
     # add the SSH private key stored in CI/CD variable to the agent store
     - echo "$SSH_PRIVATE_KEY_EVALHYD_GITHUB" | tr -d '\r' | ssh-add -
@@ -43,7 +44,6 @@ git-clone-push-github:
     - chmod 700 ~/.ssh
 
     # use ssh-keyscan to scan the keys of GitHub's server
-    - ssh-keyscan github.com
     - ssh-keyscan github.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
 
