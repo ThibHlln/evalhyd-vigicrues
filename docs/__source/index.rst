@@ -2,7 +2,7 @@ Un add-on Python pour évaluer les prévisions VigiCrues avec EvalHyd
 ===================================================================
 
 ``evalhyd.vigicrues`` est un module Python complémentaire à ``evalhyd``
-proposant un pré-traitement et un post-traitement spécifique aux
+proposant un pré-traitement et un post-traitement spécifiques aux
 `prévisions hydrologiques du réseau VigiCrues`_. En particulier, ce module permet
 de lire des données d'observations (fichiers XML-SANDRE ou CSV) et de
 prévisions (fichiers XML-SANDRE ou PRV) et de les convertir au format
