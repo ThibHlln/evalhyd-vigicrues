@@ -20,7 +20,7 @@ def plot_rel_diag(
 
        Pour des données multi-entités et/ou multi-échéances et/ou
        multi-sous-ensembles, une figure par entité, par échéance, par
-       sous-ensemble et pas seuil est générée.
+       sous-ensemble et par seuil est générée.
 
     .. note::
 
