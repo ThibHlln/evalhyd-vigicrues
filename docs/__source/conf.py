@@ -44,6 +44,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx_design',
     'myst_nb',
+    'sphinx_simplepdf'
 ]
 
 autosummary_generate = True
@@ -177,4 +178,12 @@ nb_execution_timeout = 200
 
 nb_render_image_options = {
     'width': '600px'
+}
+
+# -- Options for simplepdf extension -----------------------------------------
+simplepdf_vars = {
+    'primary': 'rgba(20, 163, 166, 1.0)',
+    'primary-opaque': 'rgba(20, 163, 166, 1.0)',
+    'cover-bg': 'rgba(20, 163, 166, 1.0)',
+    'cover-overlay': 'rgba(20, 163, 166, 1.0)',
 }

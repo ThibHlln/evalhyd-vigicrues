@@ -6,34 +6,57 @@ Référence API
 Lecture
 -------
 
-.. autosummary::
-   :template: function.rst
-   :toctree: ./api/functions
+.. if-builder:: html
 
-   read_obs_from_xml_sandre
-   read_obs_from_csv_hydroportail
+   .. autosummary::
+      :template: function.rst
+      :toctree: ./api/functions
 
-   read_prd_from_xml_sandre
-   read_prd_from_prv
+      read_obs_from_xml_sandre
+      read_obs_from_csv_hydroportail
+
+      read_prd_from_xml_sandre
+      read_prd_from_prv
+
+.. if-builder:: simplepdf
+
+   .. autofunction:: read_obs_from_xml_sandre
+   .. autofunction:: read_obs_from_csv_hydroportail
+   .. autofunction:: read_prd_from_xml_sandre
+   .. autofunction:: read_prd_from_prv
 
 
 Évaluation
 ----------
 
-.. autosummary::
-   :template: function.rst
-   :toctree: ./api/functions
+.. if-builder:: html
 
-   evalp
-   evald
+   .. autosummary::
+      :template: function.rst
+      :toctree: ./api/functions
+
+      evalp
+      evald
+
+.. if-builder:: simplepdf
+
+   .. autofunction:: evalp
+   .. autofunction:: evald
 
 
 Visualisation
 -------------
 
-.. autosummary::
-   :template: function.rst
-   :toctree: ./api/functions
+.. if-builder:: html
 
-   plot_rank_hist
-   plot_rel_diag
+   .. autosummary::
+      :template: function.rst
+      :toctree: ./api/functions
+
+      plot_rank_hist
+      plot_rel_diag
+
+.. if-builder:: simplepdf
+
+   .. autofunction:: plot_rank_hist
+   .. autofunction:: plot_rel_diag

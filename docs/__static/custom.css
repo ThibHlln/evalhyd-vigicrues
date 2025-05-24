@@ -406,3 +406,8 @@ rect.highlighted {
 a.navbar-corporate, a.navbar-corporate:hover {
     border-bottom: hidden;
 }
+
+/* customise field list for sphinx-simplepdf */
+dl.field-list dd, dl.field-list dt {
+    max-width: 100%;
+}

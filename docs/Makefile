@@ -12,3 +12,7 @@ local_html:
 ifdef VERSION_RELEASE
 	cp -a $(BLD_DIR)/html/. $(BLD_DIR)/html/$(VERSION_RELEASE)
 endif
+
+local_pdf:
+	@make local_clean
+	sphinx-build -M simplepdf ${SRC_DIR} ${BLD_DIR}/pdf

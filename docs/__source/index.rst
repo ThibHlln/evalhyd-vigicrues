@@ -14,73 +14,75 @@ diagrammes de fiabilité).
 
 .. _prévisions hydrologiques du réseau VigiCrues: https://www.vigicrues.gouv.fr
 
-.. grid:: 1 1 5 5
-   :gutter: 2
+.. if-builder:: html
 
-   .. grid-item-card::
-      :text-align: center
+   .. grid:: 1 1 5 5
+      :gutter: 2
 
-      :fas:`rocket;sd-text-info fa-4x`
+      .. grid-item-card::
+         :text-align: center
 
-      .. button-ref:: installation
-         :ref-type: doc
-         :color: primary
-         :click-parent:
-         :outline:
+         :fas:`rocket;sd-text-info fa-4x`
 
-         Installation
+         .. button-ref:: installation
+            :ref-type: doc
+            :color: primary
+            :click-parent:
+            :outline:
 
-   .. grid-item-card::
-      :text-align: center
+            Installation
 
-      :fas:`school;sd-text-info fa-4x`
+      .. grid-item-card::
+         :text-align: center
 
-      .. button-ref:: tutoriel
-         :ref-type: doc
-         :color: primary
-         :click-parent:
-         :outline:
+         :fas:`school;sd-text-info fa-4x`
 
-         Tutoriel
+         .. button-ref:: tutoriel
+            :ref-type: doc
+            :color: primary
+            :click-parent:
+            :outline:
 
-   .. grid-item-card::
-      :text-align: center
+            Tutoriel
 
-      :fas:`gear;sd-text-info fa-4x`
+      .. grid-item-card::
+         :text-align: center
 
-      .. button-ref:: api
-         :ref-type: doc
-         :color: primary
-         :click-parent:
-         :outline:
+         :fas:`gear;sd-text-info fa-4x`
 
-         Référence API
+         .. button-ref:: api
+            :ref-type: doc
+            :color: primary
+            :click-parent:
+            :outline:
 
-   .. grid-item-card::
-      :text-align: center
+            Référence API
 
-      :fas:`code;sd-text-info fa-4x`
+      .. grid-item-card::
+         :text-align: center
 
-      .. button-link:: https://gitlab.irstea.fr/HYCAR-Hydro/evalhyd/evalhyd-vigicrues
-         :color: primary
-         :click-parent:
-         :outline:
+         :fas:`code;sd-text-info fa-4x`
 
-         Code source :fas:`arrow-up-right-from-square`
+         .. button-link:: https://gitlab.irstea.fr/HYCAR-Hydro/evalhyd/evalhyd-vigicrues
+            :color: primary
+            :click-parent:
+            :outline:
 
-   .. grid-item-card::
-      :text-align: center
+            Code source :fas:`arrow-up-right-from-square`
 
-      :fas:`bug;sd-text-info fa-4x`
+      .. grid-item-card::
+         :text-align: center
 
-      .. button-link:: https://gitlab.irstea.fr/HYCAR-Hydro/evalhyd/evalhyd-vigicrues/-/issues
-         :color: primary
-         :click-parent:
-         :outline:
+         :fas:`bug;sd-text-info fa-4x`
 
-         Rapport de bugs :fas:`arrow-up-right-from-square`
+         .. button-link:: https://gitlab.irstea.fr/HYCAR-Hydro/evalhyd/evalhyd-vigicrues/-/issues
+            :color: primary
+            :click-parent:
+            :outline:
 
+            Rapport de bugs :fas:`arrow-up-right-from-square`
 
+   
 .. note::
 
    Ce module a été développé grâce au soutien du `Service Central
