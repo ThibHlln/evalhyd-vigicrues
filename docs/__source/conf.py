@@ -5,6 +5,8 @@
 
 import os
 import sys
+from sphinx import locale
+
 
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -27,6 +29,7 @@ if os.getenv(var_release):
 else:
     version = 'latest'
     release = 'latest'
+version = 'v0.1.0-beta'
 
 import pydata_sphinx_theme
 
@@ -79,6 +82,8 @@ rst_prolog = """
    :language: python
    :class: highlight
 """
+
+locale.admonitionlabels['seealso'] = 'Voir aussi'
 
 # -- Options for HTML output -------------------------------------------------
 

@@ -96,6 +96,8 @@ def evald(
             La liste d'indicateurs d'évaluation à calculer.
             dimensions : (indicateurs,)
 
+            .. seealso:: `Indicateurs déterministes <https://hydrogr.github.io/evalhyd/metrics/deterministic.html>`_
+
         q_thr: `numpy.ndarray` ``[dtype('float64')]``, optionnel
             Le vecteur contenant le(s) seuil(s) de débits à considérer
             pour les indicateurs évaluant les prédictions de dépassement

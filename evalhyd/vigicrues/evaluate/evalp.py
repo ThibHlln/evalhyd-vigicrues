@@ -98,6 +98,8 @@ def evalp(
             La liste d'indicateurs d'évaluation à calculer.
             dimensions : (indicateurs,)
 
+            .. seealso:: `Indicateurs probabilistes <https://hydrogr.github.io/evalhyd/metrics/probabilistic.html>`_
+
         q_thr: `numpy.ndarray` ``[dtype('float64')]``, optionnel
             La matrice 2D contenant le(s) seuil(s) de débits à
             considérer pour les indicateurs évaluant les prédictions
