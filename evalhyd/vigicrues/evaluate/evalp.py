@@ -16,9 +16,9 @@ _levels = toml.load(
 def evalp(
         df_obs: pd.DataFrame, df_prd: pd.DataFrame, metrics: List[str],
         q_thr: np.ndarray = None, events: str = None, c_lvl: np.ndarray = None,
-        t_msk: np.ndarray = None, m_cdt: np.ndarray = None,
-        bootstrap: Dict[str, int] = None, seed: int = None,
-        diagnostics: List[str] = None,
+        q_lvl: np.ndarray = None, t_msk: np.ndarray = None,
+        m_cdt: np.ndarray = None, bootstrap: Dict[str, int] = None,
+        seed: int = None, diagnostics: List[str] = None,
         return_format: str = 'dataframe'
 ) -> Dict[str, np.ndarray | pd.DataFrame]:
     """Fonction pour évaluer des predictions probabilistes de débits.
@@ -120,6 +120,13 @@ def evalp(
             Le vecteur d'intervalle(s) de confiance en pourcents à
             considérer pour les indicateurs basés sur des intervalles.
             dimensions : (intervalles,)
+
+        q_lvl: `numpy.ndarray` ``[dtype('float64')]``, optionnel
+            Le vecteur de quantiles auxquels correspondent les membres
+            de l'ensemble. S'ils ne sont pas fournis, les quantiles sont
+            déduits du nombre de membres qui sont considérés comme
+            équiprobables.
+            dimensions : (membres,)
 
         t_msk: `numpy.ndarray` ``[dtype('bool')]``, optionnel
             La matrice 4D contenant les masques permettant des générer
@@ -253,7 +260,7 @@ def evalp(
     # call evalhyd function
     res_as_arr = evalhyd.evalp(
         arr_obs, arr_prd, metrics,
-        q_thr, events, c_lvl, t_msk, m_cdt,
+        q_thr, events, c_lvl, q_lvl, t_msk, m_cdt,
         bootstrap, dts, seed,
         diagnostics
     )
@@ -316,7 +323,10 @@ def evalp(
                     'quantile':
                         [
                             f'{q:.3f}'
-                            for q in (np.arange(n_mbr) + 1) / (n_mbr + 1.)
+                            for q in (
+                                (np.arange(n_mbr) + 1) / (n_mbr + 1.)
+                                if q_lvl is None else q_lvl
+                            )
                         ],
                     'cellule':
                         ['a', 'b', 'c', 'd'],
