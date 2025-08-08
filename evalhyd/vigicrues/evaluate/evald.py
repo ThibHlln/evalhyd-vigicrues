@@ -22,7 +22,7 @@ def evald(
         transform: str = None,
         exponent: float = None,
         q_thr: NDArray[dtype('float64')] | List[int] | List[float] = None,
-        events: str = None,
+        events: str = 'high',
         epsilon: float = None,
         t_msk: NDArray[dtype('bool')] = None,
         m_cdt: NDArray[dtype('|S32')] | List[str] = None,
@@ -118,8 +118,9 @@ def evald(
             d'événements de crues (c'est-à-dire quand le débit passe
             au-dessus du seuil) soit comme `"low"` pour l'évaluation
             d'événements d'étiages (c'est-à-dire quand le débit passe
-            en-dessous du seuil). Il doit être fourni si *q_thr* est
-            fourni.
+            en-dessous du seuil). Il est utilisé quand *q_thr* est
+            fourni. S'il n'est pas fourni, il prend la valeur `"high"`
+            par défaut.
 
         t_msk: `numpy.ndarray` ``[dtype('bool')]``, optionnel
             La matrice 2D contenant les masques permettant des générer

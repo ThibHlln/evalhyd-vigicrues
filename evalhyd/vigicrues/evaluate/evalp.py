@@ -20,7 +20,7 @@ def evalp(
         df_prd: pd.DataFrame,
         metrics: List[str],
         q_thr: NDArray[dtype('float64')] | List[int] | List[float] = None,
-        events: str = None,
+        events: str = 'high',
         c_lvl: NDArray[dtype('float64')] | List[int] | List[float] = None,
         q_lvl: NDArray[dtype('float64')] | List[int] | List[float] = None,
         t_msk: NDArray[dtype('bool')] = None,
@@ -124,8 +124,9 @@ def evalp(
             d'événements de crues (c'est-à-dire quand le débit passe
             au-dessus du seuil) soit comme `"low"` pour l'évaluation
             d'événements d'étiages (c'est-à-dire quand le débit passe
-            en-dessous du seuil). Il doit être fourni si *q_thr* est
-            fourni.
+            en-dessous du seuil). Il est utilisé quand *q_thr* est
+            fourni. S'il n'est pas fourni, il prend la valeur `"high"`
+            par défaut.
 
         c_lvl: `numpy.ndarray` ``[dtype('float64')]``, optionnel
             Le vecteur d'intervalle(s) de confiance en pourcents à
