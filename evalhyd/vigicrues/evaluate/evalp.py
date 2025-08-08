@@ -1,8 +1,10 @@
 import os
 import toml
+from typing import List, Dict
 import numpy as np
 import pandas as pd
-from typing import List, Dict
+from numpy import dtype
+from numpy.typing import NDArray
 import evalhyd
 
 from ._convert import convert_obs_df_to_arr, convert_prd_df_to_arr
@@ -14,14 +16,21 @@ _levels = toml.load(
 
 
 def evalp(
-        df_obs: pd.DataFrame, df_prd: pd.DataFrame, metrics: List[str],
-        q_thr: np.ndarray = None, events: str = None, c_lvl: np.ndarray = None,
-        q_lvl: np.ndarray = None, t_msk: np.ndarray = None,
-        m_cdt: np.ndarray = None, bootstrap: Dict[str, int] = None,
-        seed: int = None, diagnostics: List[str] = None,
+        df_obs: pd.DataFrame,
+        df_prd: pd.DataFrame,
+        metrics: List[str],
+        q_thr: NDArray[dtype('float64')] | List[int] | List[float] = None,
+        events: str = None,
+        c_lvl: NDArray[dtype('float64')] | List[int] | List[float] = None,
+        q_lvl: NDArray[dtype('float64')] | List[int] | List[float] = None,
+        t_msk: NDArray[dtype('bool')] = None,
+        m_cdt: NDArray[dtype('|S32')] | List[str] = None,
+        bootstrap: Dict[str, int] = None,
+        seed: int = None,
+        diagnostics: List[str] = None,
         return_format: str = 'dataframe'
 ) -> Dict[str, np.ndarray | pd.DataFrame]:
-    """Fonction pour évaluer des predictions probabilistes de débits.
+    """Fonction pour évaluer des prédictions probabilistes de débits.
 
     .. warning::
 
@@ -203,6 +212,12 @@ def evalp(
                des données fournies à *df_obs*, *df_prd* et *q_thr*.
 
     """
+    # convert arguments that must be arrays but that are not already
+    q_thr = np.asarray(q_thr, dtype='float64')
+    c_lvl = np.asarray(c_lvl, dtype='float64')
+    q_lvl = np.asarray(q_lvl, dtype='float64')
+    m_cdt = np.asarray(m_cdt, dtype='|S32')
+
     # check requested return format
     if return_format not in ('dataframe', 'array'):
         raise ValueError(

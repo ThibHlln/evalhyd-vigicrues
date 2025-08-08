@@ -16,15 +16,22 @@ _levels = toml.load(
 
 
 def evald(
-        df_obs: pd.DataFrame, df_prd: pd.DataFrame,
-        metrics: List[str], transform: str = None, exponent: float = None,
-        q_thr: np.ndarray = None, events: str = None,
-        epsilon: float = None, t_msk: NDArray[dtype('bool')] = None,
-        m_cdt: NDArray[dtype('|S32')] = None, bootstrap: Dict[str, int] = None,
-        seed: int = None, diagnostics: List[str] = None,
+        df_obs: pd.DataFrame,
+        df_prd: pd.DataFrame,
+        metrics: List[str],
+        transform: str = None,
+        exponent: float = None,
+        q_thr: NDArray[dtype('float64')] | List[int] | List[float] = None,
+        events: str = None,
+        epsilon: float = None,
+        t_msk: NDArray[dtype('bool')] = None,
+        m_cdt: NDArray[dtype('|S32')] | List[str] = None,
+        bootstrap: Dict[str, int] = None,
+        seed: int = None,
+        diagnostics: List[str] = None,
         return_format: str = 'dataframe'
 ) -> Dict[str, np.ndarray | pd.DataFrame]:
-    """Fonction pour évaluer des predictions déterministes de débits.
+    """Fonction pour évaluer des prédictions déterministes de débits.
 
     .. warning::
 
@@ -181,6 +188,10 @@ def evald(
             de diagnostic d'évaluation le cas échéant).
 
     """
+    # convert arguments that must be arrays but that are not already
+    q_thr = np.asarray(q_thr, dtype='float64')
+    m_cdt = np.asarray(m_cdt, dtype='|S32')
+
     # check requested return format
     if return_format not in ('dataframe', 'array'):
         raise ValueError("return_format must be 'dataframe' or 'array'")
