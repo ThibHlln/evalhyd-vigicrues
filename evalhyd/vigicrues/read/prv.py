@@ -136,4 +136,7 @@ def read_prd_from_prv(prv_files: List[str]) -> pd.DataFrame:
 
         df1 = pd.concat([df1, df0])
 
+    # sort index to make sure dates are in chronological order
+    df1 = df1.sort_index()
+
     return df1

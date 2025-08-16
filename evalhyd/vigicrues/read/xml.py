@@ -158,6 +158,9 @@ def read_prd_from_xml_sandre(
 
         df2 = pd.concat([df2, df1])
 
+    # sort index to make sure dates are in chronological order
+    df2 = df2.sort_index()
+
     return df2
 
 
@@ -242,5 +245,8 @@ def read_obs_from_xml_sandre(xml_files: List[str]) -> pd.DataFrame:
             df1 = pd.concat([df1, df0])
 
         df2 = pd.concat([df2, df1])
+
+    # sort index to make sure dates are in chronological order
+    df2 = df2.sort_index()
 
     return df2

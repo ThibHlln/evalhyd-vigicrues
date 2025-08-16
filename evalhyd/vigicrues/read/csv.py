@@ -99,4 +99,7 @@ def read_obs_from_csv_hydroportail(csv_files: List[str]) -> pd.DataFrame:
         # concatenate with other sites
         df1 = pd.concat([df1, df0])
 
+    # sort index to make sure dates are in chronological order
+    df1 = df1.sort_index()
+
     return df1
