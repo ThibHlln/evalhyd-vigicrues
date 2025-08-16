@@ -145,6 +145,10 @@ def plot_rel_diag(
                     if savefig_kwargs:
                         kwargs.update(savefig_kwargs)
 
+                    # replace comparison operators in thresholds by text
+                    threshold = threshold.replace('≥', 'SUP')
+                    threshold = threshold.replace('≤', 'INF')
+
                     # standardise file name
                     formatted_leadtime = (
                         format_timedelta(leadtime)
