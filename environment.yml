@@ -1,7 +1,7 @@
 channels:
   - conda-forge
 dependencies:
-  - numpy<2.0
+  - numpy
   - pandas
   - matplotlib
   - toml
@@ -9,4 +9,4 @@ dependencies:
   - pip
   - git
   - pip:
-    - "git+https://gitlab.com/vigicrues/hydro3/libhydro@0.9.5"
+    - "git+https://gitlab.com/vigicrues/hydro3/libhydro@1.0.0"
