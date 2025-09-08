@@ -155,7 +155,7 @@ def plot_rel_diag(
                     )
 
                     filename = (
-                        f"{site}+{formatted_leadtime}+{s}+{threshold}"
+                        f"reldiag+{site}+{formatted_leadtime}+{s}+{threshold}"
                     )
 
                     # get rid of problematic characters in filename

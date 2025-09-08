@@ -222,7 +222,8 @@ def plot_rank_hist(
 
                 # save figure with custom file name
                 filename = (
-                    f"{site if site != slice(None) else 'toutes-entites'}"
+                    "rankhist"
+                    f"+{site if site != slice(None) else 'toutes-entites'}"
                     f"+{formatted_leadtime}"
                     f"+{s if subset != slice(None) else 'tous-sous-ensembles'}"
                 )
