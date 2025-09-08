@@ -186,19 +186,23 @@ def plot_rank_hist(
                             color="tab:blue", width=1.0
                         )
 
+                        ax.set_xticks(ranks, labels=[])
+                        ax.set_yticks([])
+
                         if row and c == 0:
                             ax.set_ylabel(
                                 f"+{format_timedelta(row_)}"
                                 if row == 'echeance' else row_
                             )
-                        if col and r == len(rows) - 1:
-                            ax.set_xlabel(
-                                f"+{format_timedelta(col_)}"
-                                if col == 'echeance' else col_
-                            )
-
-                        ax.set_xticks([])
-                        ax.set_yticks([])
+                        if r == len(rows) - 1:
+                            labels = ranks.astype(int).astype(str)
+                            labels[1:-1] = ''
+                            ax.set_xticklabels(labels)
+                            if col:
+                                ax.set_xlabel(
+                                    f"+{format_timedelta(col_)}"
+                                    if col == 'echeance' else col_
+                                )
 
                 if row:
                     fig.supylabel(row)
