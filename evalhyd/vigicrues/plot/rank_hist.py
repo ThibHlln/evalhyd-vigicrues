@@ -186,7 +186,7 @@ def plot_rank_hist(
                             color="tab:blue", width=1.0
                         )
 
-                        ax.set_xticks(ranks, labels=[])
+                        ax.set_xticks(ranks[[0, -1]], labels=[])
                         ax.set_yticks([])
 
                         if row and c == 0:
@@ -195,9 +195,9 @@ def plot_rank_hist(
                                 if row == 'echeance' else row_
                             )
                         if r == len(rows) - 1:
-                            labels = ranks.astype(int).astype(str)
-                            labels[1:-1] = ''
-                            ax.set_xticklabels(labels)
+                            ax.set_xticklabels(
+                                ranks[[0, -1]].astype(int).astype(str)
+                            )
                             if col:
                                 ax.set_xlabel(
                                     f"+{format_timedelta(col_)}"
