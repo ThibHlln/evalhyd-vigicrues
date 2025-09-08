@@ -97,7 +97,7 @@ def plot_rank_hist(
     for axis in (row, col):
         if axis not in ('entite', 'echeance', 'sous_ensemble', None):
             raise ValueError(
-                "les axes x et y ne peuvent être que 'entite' ou "
+                "les axes x et y ne peuvent être que 'entite' "
                 "ou 'echeance' ou 'sous_ensemble'"
             )
 
@@ -143,7 +143,7 @@ def plot_rank_hist(
                 cols = level_values[col]
 
                 # create figure and grid spec
-                w_in =  8.
+                w_in = 8.
                 h_in = 6.
                 width = w_in * len(cols)
                 height = h_in * len(rows)
