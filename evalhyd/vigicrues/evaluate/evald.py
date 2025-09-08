@@ -190,8 +190,8 @@ def evald(
 
     """
     # convert arguments that must be arrays but that are not already
-    q_thr = np.asarray(q_thr, dtype='float64')
-    m_cdt = np.asarray(m_cdt, dtype='|S32')
+    q_thr = np.asarray(q_thr, dtype='float64') if q_thr is not None else None
+    m_cdt = np.asarray(m_cdt, dtype='|S32') if m_cdt is not None else None
 
     # check requested return format
     if return_format not in ('dataframe', 'array'):

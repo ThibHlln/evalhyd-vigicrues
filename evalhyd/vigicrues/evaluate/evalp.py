@@ -214,10 +214,10 @@ def evalp(
 
     """
     # convert arguments that must be arrays but that are not already
-    q_thr = np.asarray(q_thr, dtype='float64')
-    c_lvl = np.asarray(c_lvl, dtype='float64')
-    q_lvl = np.asarray(q_lvl, dtype='float64')
-    m_cdt = np.asarray(m_cdt, dtype='|S32')
+    q_thr = np.asarray(q_thr, dtype='float64') if q_thr is not None else None
+    c_lvl = np.asarray(c_lvl, dtype='float64') if c_lvl is not None else None
+    q_lvl = np.asarray(q_lvl, dtype='float64') if q_lvl is not None else None
+    m_cdt = np.asarray(m_cdt, dtype='|S32') if m_cdt is not None else None
 
     # check requested return format
     if return_format not in ('dataframe', 'array'):
