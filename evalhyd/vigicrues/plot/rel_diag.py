@@ -88,8 +88,9 @@ def plot_rel_diag(
         for leadtime in level_values['echeance']:
             for s, subset in enumerate(level_values['sous_ensemble']):
                 for threshold in (
-                        rel_diag.loc[(site, leadtime, subset)]
-                                .index.unique('seuil')
+                        rel_diag
+                        .loc[(site, leadtime, subset)]
+                        .index.unique('seuil')
                 ):
                     # create figure and grid spec
                     fig = plt.figure(
@@ -138,6 +139,25 @@ def plot_rel_diag(
                     ax1.set_xticks([])
                     ax1.set_yticks([])
 
+                    # add figure title
+                    formatted_leadtime = (
+                        format_timedelta(leadtime)
+                    )
+
+                    fig.suptitle(
+                        ', '.join(
+                            filter(
+                                None,
+                                [
+                                    f"entite : {site}",
+                                    f"echeance : {formatted_leadtime}",
+                                    f"sous-ensemble : {s}",
+                                    f"seuil : {threshold}"
+                                ]
+                            )
+                        )
+                    )
+
                     # update savefig parameters if provided
                     kwargs = dict(
                         format='png', dpi=300
@@ -150,12 +170,23 @@ def plot_rel_diag(
                     threshold = threshold.replace('≤', 'INF')
 
                     # standardise file name
-                    formatted_leadtime = (
-                        format_timedelta(leadtime)
-                    )
-
                     filename = (
                         f"reldiag+{site}+{formatted_leadtime}+{s}+{threshold}"
+                    )
+
+                    # add figure title
+                    fig.suptitle(
+                        ', '.join(
+                            filter(
+                                None,
+                                [
+                                    f"entite : {site}",
+                                    f"echeance : {formatted_leadtime}",
+                                    f"sous-ensemble : {s}",
+                                    f"seuil : {threshold}"
+                                ]
+                            )
+                        )
                     )
 
                     # get rid of problematic characters in filename

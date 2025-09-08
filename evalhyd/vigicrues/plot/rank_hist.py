@@ -209,7 +209,6 @@ def plot_rank_hist(
                 if col:
                     fig.supxlabel(col)
 
-                # save figure with custom file name
                 formatted_leadtime = (
                     'toutes-echeances'
                     if leadtime == slice(None)
@@ -218,6 +217,24 @@ def plot_rank_hist(
                     else leadtime
                 )
 
+                fig.suptitle(
+                    ', '.join(
+                        filter(
+                            None,
+                            [
+                                f"entite : {site}" if site != slice(None)
+                                else None,
+                                f"echeance : {formatted_leadtime}"
+                                if formatted_leadtime != 'toutes-echeances'
+                                else None,
+                                f"sous-ensemble : {s}" if subset != slice(None)
+                                else None
+                            ]
+                        )
+                    )
+                )
+
+                # save figure with custom file name
                 kwargs = dict(
                     format='png', dpi=300
                 )
