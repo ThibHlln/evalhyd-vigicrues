@@ -1,0 +1,6 @@
+numpy
+pandas
+matplotlib
+toml
+evalhyd-python==0.1.3.0
+libhydro @ git+https://gitlab.com/vigicrues/hydro3/libhydro@1.0.1

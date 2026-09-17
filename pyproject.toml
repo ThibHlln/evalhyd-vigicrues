@@ -1,8 +1,55 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel",
-    "setuptools_scm>=6.2",
+requires = ["setuptools", "setuptools-scm", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evalhyd-vigicrues"
+authors = [
+    {name = "Thibault Hallouin", email = "t.hallouin@brgm.fr"},
 ]
 
-build-backend = "setuptools.build_meta"
+description = "A Python add-on to evalhyd providing pre- and post-processing functionalities specific to VigiCrues forecasts"
+readme = {file = "README.md", content-type = "text/markdown"}
+license-files = ["LICENCE.rst"]
+
+dynamic = [
+    "version",
+    "dependencies"
+]
+
+classifiers = [
+    'Programming Language :: Python',
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Hydrology",
+    "Intended Audience :: Science/Research",
+]
+
+requires-python = ">=3.11"
+
+[project.urls]
+sourcecode = "https://forge.inrae.fr/hydroGR/evalhyd/evalhyd-vigicrues"
+bugtracker = "https://forge.inrae.fr/hydroGR/evalhyd/evalhyd-vigicrues/-/work_items"
+documentation = "https://hydrogr.github.io/evalhyd-vigicrues"
+
+[tool.setuptools]
+packages = [
+    "evalhyd.vigicrues",
+    "evalhyd.vigicrues.evaluate",
+    "evalhyd.vigicrues.plot",
+    "evalhyd.vigicrues.read"
+]
+
+[tool.setuptools.package-data]
+"evalhyd.vigicrues.evaluate" = [
+    "evald.toml",
+    "evalp.toml"
+]
+
+[tool.setuptools_scm]
+version_file = "evalhyd/vigicrues/_version.py"
+local_scheme = "node-and-date"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
