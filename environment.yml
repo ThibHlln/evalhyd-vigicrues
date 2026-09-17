@@ -9,4 +9,4 @@ dependencies:
   - pip
   - git
   - pip:
-    - "git+https://gitlab.com/vigicrues/hydro3/libhydro@1.0.0"
+    - "git+https://gitlab.com/vigicrues/hydro3/libhydro@1.0.1"

@@ -71,6 +71,6 @@ setup(
         'matplotlib',
         'toml',
         'evalhyd-python==0.1.3.0',
-        'libhydro==1.0.0'
+        'libhydro==1.0.1'
     ]
 )
