@@ -70,7 +70,7 @@ setup(
         'pandas',
         'matplotlib',
         'toml',
-        'evalhyd-python>=0.1.2,< 2.0',
+        'evalhyd-python==0.1.3.0',
         'libhydro==1.0.0'
     ]
 )
